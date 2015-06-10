@@ -3,7 +3,7 @@ import sys
 import tornado.web
 import tornado.auth
 from jinja2 import Template, Environment, FileSystemLoader
-from pymongo.objectid import ObjectId
+from bson import objectid
 
 import filter, utils, session
 from forms import *

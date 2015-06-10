@@ -19,7 +19,7 @@ def markdown_tag(str):
     return markdown.markdown(str)
 
 define("port", default=8888, help="run on the given port", type=int)
-define("mongo_host", default="127.0.0.1:3306", help="database host")
+define("mongo_host", default="127.0.0.1:27017", help="database host")
 define("mongo_database", default="quora", help="database name")
 
 class Application(tornado.web.Application):
