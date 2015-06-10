@@ -14,7 +14,7 @@ class BaseForm(formencode.Schema):
     allow_extra_fields = True
     filter_extra_fields = True
 
-    _xsrf = validators.PlainText(not_empty=True, max=32)
+    _xsrf = validators.String(not_empty=True,min=54,max=54)
 
     def __init__(self, handler, form_id = None):
 
