@@ -26,6 +26,7 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r"/", HomeHandler),
+            (r"/discovery",DiscoverHandler),
             (r"/login", LoginHandler),
             (r"/register", RegisterHandler),
             (r"/logout", LogoutHandler),

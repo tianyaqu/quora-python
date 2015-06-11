@@ -75,8 +75,8 @@ class BaseHandler(tornado.web.RequestHandler):
     def set_title(self, str):
         self._title = u"%s - %s" % (str,self.settings['app_name'])
 
-"""
-class HomeHandler(BaseHandler):
+
+class DiscoverHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         last_id = self.get_argument("last", None)
@@ -88,7 +88,8 @@ class HomeHandler(BaseHandler):
             self.redirect("/ask")
         else:
             self.render("home.html", asks=asks)
-"""
+
+
 class HomeHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
