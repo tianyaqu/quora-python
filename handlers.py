@@ -83,7 +83,7 @@ class DiscoverHandler(BaseHandler):
         if not last_id:
           asks = Ask.objects.order_by("-replied_at").limit(10)
         else:
-          asks = Ask.order_by("-replied_at").objects(id_lt = last_id).limit(10)
+          asks = Ask.objects(id_lt = last_id).order_by("-replied_at").limit(10)
         if not asks:
             self.redirect("/ask")
         else:
@@ -95,22 +95,13 @@ class HomeHandler(BaseHandler):
     def get(self):
         last_id = self.get_argument("last", None)
         if not last_id:
-            user = self.current_user
-            following_ids = [x for x in user.following]
-
-            events = []
-            for x in following_ids:
-                events.extend(UserEvent.objects(user = x))
-
+            user = self.current_user            
+            events = UserEvent.objects(user__in = user.following)
+            print events.only('target').all()
             ask_ids = [x.target for x in events]
-            
-            asks = []
-            for ask_id in ask_ids:
-                asks.append(Ask.objects(id=ask_id).first())
-
-            #asks = Ask.objects.order_by("-replied_at").limit(10)
+            asks = Ask.objects(id__in = ask_ids).order_by("-replied_at").limit(10)
         else:
-            asks = Ask.order_by("-replied_at").objects(id_lt = last_id).limit(10)
+            asks = Ask.objects(id_lt = last_id).order_by("-replied_at").limit(10)
         if not asks:
             self.redirect("/ask")
         else:
