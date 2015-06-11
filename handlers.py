@@ -75,6 +75,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def set_title(self, str):
         self._title = u"%s - %s" % (str,self.settings['app_name'])
 
+"""
 class HomeHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
@@ -87,7 +88,32 @@ class HomeHandler(BaseHandler):
             self.redirect("/ask")
         else:
             self.render("home.html", asks=asks)
+"""
+class HomeHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        last_id = self.get_argument("last", None)
+        if not last_id:
+            user = self.current_user
+            following_ids = [x for x in user.following]
 
+            events = []
+            for x in following_ids:
+                events.extend(UserEvent.objects(user = x))
+
+            ask_ids = [x.target for x in events]
+            
+            asks = []
+            for ask_id in ask_ids:
+                asks.append(Ask.objects(id=ask_id).first())
+
+            #asks = Ask.objects.order_by("-replied_at").limit(10)
+        else:
+            asks = Ask.order_by("-replied_at").objects(id_lt = last_id).limit(10)
+        if not asks:
+            self.redirect("/ask")
+        else:
+            self.render("home.html", asks=asks)
 
 class AskHandler(BaseHandler):
     @tornado.web.authenticated
@@ -111,6 +137,7 @@ class AskHandler(BaseHandler):
             tags = utils.format_tags(frm.tags))
         try:
           ask.save()
+          UserEvent(user=self.current_user,type="ask",target=ask.id).save()
           self.redirect("/ask/%s" % ask.id)
         except Exception,exc:
           self.notice(exc,"error")
@@ -304,4 +331,9 @@ class UnfollowHandler(BaseHandler):
             me = self.get_current_user()
             he = User.objects(name = target).first()
             he.update(pull__followers = me)
-            me.update(pull__following = he)            
+            me.update(pull__following = he)
+
+class TopicFollowHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        pass

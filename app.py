@@ -40,6 +40,7 @@ class Application(tornado.web.Application):
             (r"/settings", SettingsHandler),
             (r"/follow", FollowHandler),
             (r"/unfollow", UnfollowHandler),
+            (r"/topicfollow", TopicFollowHandler),
             (r"/([^/]+)", ProfileHandler),
 
         ]

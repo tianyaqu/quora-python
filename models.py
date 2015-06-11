@@ -70,4 +70,8 @@ class Answer(Document):
                                      push__votes=new_vote)
         return 1
 
-
+class UserEvent(Document):
+    happended_at = DateTimeField(default=datetime.datetime.now)
+    user = ReferenceField(User)
+    type = StringField()
+    target = ObjectIdField()
