@@ -286,3 +286,12 @@ class SettingsHandler(BaseHandler):
         self.notice("保存成功", 'success')
         self.redirect("/settings")
         
+class FollowHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        target = self.get_argument('id',None)
+        if(target):
+            me = self.get_current_user()
+            he = User.objects(name = target).first()
+            he.update(add_to_set__followers = me)
+            me.update(add_to_set__following = he)

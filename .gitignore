@@ -1,3 +1,5 @@
 *.pyc
 tmp/session/*
 log/*.log
+tmp/
+tmp/session/

@@ -9,6 +9,8 @@ class User(Document):
     password = StringField(required=True)
     blog = URLField()
     bio = StringField(max_length=1000)
+    followers = ListField(ReferenceField('self', dbref=False))
+    following = ListField(ReferenceField('self', dbref=False))
     created_at = DateTimeField(default=datetime.datetime.now)
 
 class Comment(EmbeddedDocument):

@@ -38,7 +38,9 @@ class Application(tornado.web.Application):
             (r"/comment/([^/]+)/([^/]+)", CommentHandler),
             (r"/ask", AskHandler),
             (r"/settings", SettingsHandler),
+            (r"/follow", FollowHandler),
             (r"/([^/]+)", ProfileHandler),
+
         ]
         settings = dict(
             app_name=u"我知",
