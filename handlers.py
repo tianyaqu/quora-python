@@ -295,3 +295,13 @@ class FollowHandler(BaseHandler):
             he = User.objects(name = target).first()
             he.update(add_to_set__followers = me)
             me.update(add_to_set__following = he)
+
+class UnfollowHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        target = self.get_argument('id',None)
+        if(target):
+            me = self.get_current_user()
+            he = User.objects(name = target).first()
+            he.update(pull__followers = me)
+            me.update(pull__following = he)            
