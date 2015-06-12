@@ -11,6 +11,7 @@ class User(Document):
     bio = StringField(max_length=1000)
     followers = ListField(ReferenceField('self', dbref=False))
     following = ListField(ReferenceField('self', dbref=False))
+    time_line = ListField(ObjectIdField())
     created_at = DateTimeField(default=datetime.datetime.now)
 
 class Comment(EmbeddedDocument):

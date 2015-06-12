@@ -81,9 +81,10 @@ class DiscoverHandler(BaseHandler):
     def get(self):
         last_id = self.get_argument("last", None)
         if not last_id:
-          asks = Ask.objects.order_by("-replied_at").limit(10)
+          asks = Ask.objects.order_by("-replied_at")[:10]
+          print type(asks),asks[2]
         else:
-          asks = Ask.objects(id_lt = last_id).order_by("-replied_at").limit(10)
+          asks = Ask.order_by("-replied_at").objects(id_lt = last_id)[:10]
         if not asks:
             self.redirect("/ask")
         else:
@@ -95,11 +96,15 @@ class HomeHandler(BaseHandler):
     def get(self):
         last_id = self.get_argument("last", None)
         if not last_id:
-            user = self.current_user            
-            events = UserEvent.objects(user__in = user.following)
-            print events.only('target').all()
-            ask_ids = [x.target for x in events]
-            asks = Ask.objects(id__in = ask_ids).order_by("-replied_at").limit(10)
+            user = self.current_user 
+            asks = None
+            events = None
+            if(user.time_line):
+                events = UserEvent.objects(id__in = user.time_line)
+
+            if(events):
+                ask_ids = [x.target for x in events]
+                asks = Ask.objects(id__in = ask_ids).order_by("-replied_at").limit(10)
         else:
             asks = Ask.objects(id_lt = last_id).order_by("-replied_at").limit(10)
         if not asks:
@@ -128,12 +133,18 @@ class AskHandler(BaseHandler):
             user = self.current_user,
             tags = utils.format_tags(frm.tags))
         try:
-          ask.save()
-          UserEvent(user=self.current_user,type="ask",target=ask.id).save()
-          self.redirect("/ask/%s" % ask.id)
+            ask.save()
+            event = UserEvent(user=self.current_user,type="ask",target=ask.id)
+            event.save()
+          
+            # this part could be put in a queue
+            for x in self.current_user.followers:
+                User.objects(id = x.id).update_one(push__time_line = event.id)
+            
+            self.redirect("/ask/%s" % ask.id)
         except Exception,exc:
-          self.notice(exc,"error")
-          frm.render("ask.html")
+            self.notice(exc,"error")
+            frm.render("ask.html")
 
 
         

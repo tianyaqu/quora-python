@@ -12,7 +12,7 @@
   </div>
   {% endfor %}
   {% if asks|length == 10 %}
-  <a class="page_more" href="/?last={{ asks[-1].id }}">查看更多...</a>
+  <a class="page_more" href="/?last={{ asks[9].id }}">查看更多...</a>
   {% endif %}
 </div>
 {% endblock %}
