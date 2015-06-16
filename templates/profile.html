@@ -29,7 +29,9 @@
   </div>
 </div>
   <div class = "social-buttons">
-    {% if current_user|is_following(user) %}
+    {% if current_user == user %}
+        <a href="/settings" ">修改资料</a>
+    {% elif current_user|is_following(user) %}
         <a class="button unfollow" href="javascript:void(0)" onclick="follow('{{user.login}}',0)"></a>
     {% else %}
         <a class="button follow" href="javascript:void(0)" onclick="follow('{{user.login}}',1)"></a>

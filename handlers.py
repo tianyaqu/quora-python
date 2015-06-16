@@ -345,9 +345,12 @@ class FollowHandler(BaseHandler):
         if(target):
             me = self.get_current_user()
             he = User.objects(login = target).first()
+
             if(not he or me == he):
                 #self.notice('有问题',"error")
                 self.redirect("/")
+                return
+
             he.update(add_to_set__followers = me)
             me.update(add_to_set__following = he)
 
