@@ -74,6 +74,19 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def set_title(self, str):
         self._title = u"%s - %s" % (str,self.settings['app_name'])
+    
+    def events_articles(self,events):
+        articles = []
+        if(events):
+            for event in events:
+                print event.target
+                if(not event.target):
+                    continue
+                article = Article(event)
+                if(article):
+                    articles.append(article)
+        
+        return articles
 
 
 class DiscoverHandler(BaseHandler):
@@ -102,15 +115,17 @@ class HomeHandler(BaseHandler):
             if(user.time_line):
                 events = UserEvent.objects(id__in = user.time_line)
 
+            articles = self.events_articles(events)
+            """
             if(events):
                 ask_ids = [x.target for x in events]
                 asks = Ask.objects(id__in = ask_ids).order_by("-replied_at").limit(10)
+            """
         else:
             asks = Ask.objects(id_lt = last_id).order_by("-replied_at").limit(10)
-        if not asks:
-            self.redirect("/ask")
-        else:
-            self.render("home.html", asks=asks)
+
+        #self.render("home.html", asks=asks)
+        self.render("home.html", articles=articles)
 
 class AskHandler(BaseHandler):
     @tornado.web.authenticated
@@ -176,9 +191,16 @@ class AnswerHandler(BaseHandler):
         answer = Answer(ask=ask,
                         body=frm.answer_body,
                         user=self.current_user)
+                        
         try:
             answer.save()
             Ask.objects(id=ask_id).update_one(inc__answers_count=1,set__replied_at=answer.created_at)
+            
+            event = UserEvent(user=self.current_user,type="answer",target=answer.id)
+            event.save()
+            # this part could be put in a queue
+            for x in self.current_user.followers:
+                User.objects(id = x.id).update_one(push__time_line = event.id)
             self.redirect("/ask/%s" % ask_id)
         except Exception,exc:
             self.notice(exc,"error")

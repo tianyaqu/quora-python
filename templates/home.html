@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
 {% block body %}
-<div id="asks">
-  {% for item in asks %}
+<div id="articles">
+  {% for item in articles %}
   <div class="ask">
-    <div class="title"><a href="/ask/{{ item.id }}">{{ item.title|e }}</a></div>
-    <div class="info">{{ item.user|user_name_tag }} 发布关于 {{ item.tags|tags_name_tag(2) }} 的问题于 {{ item.created_at|strftime }}, {{ item.answers_count }} 个回答</div>
+    <div class="title"><a href="{{ item.url }}">{{ item.title|e }}</a></div>
+    <div class="info">{{ item.user|user_name_tag }} {{item.type}} 问题于 {{ item.created_at|strftime }}, {{ item.answers_count }} 个回答</div>
     <div class="body">
       {{ item.body|truncate_lines|md_body }}
     </div>
   </div>
   {% endfor %}
-  {% if asks|length == 10 %}
-  <a class="page_more" href="/?last={{ asks[9].id }}">查看更多...</a>
+  {% if articles|length == 10 %}
+  <a class="page_more" href="/?last={{ articles[9].id }}">查看更多...</a>
   {% endif %}
 </div>
 {% endblock %}

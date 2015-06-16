@@ -1,5 +1,6 @@
 # coding: utf-8
 from mongoengine import *
+from bson import objectid
 import datetime
 
 class User(Document):
@@ -76,3 +77,24 @@ class UserEvent(Document):
     user = ReferenceField(User)
     type = StringField()
     target = ObjectIdField()
+    
+class Article():
+    def __init__(self,event):
+        if(event.type == 'ask'):
+            stuff = Ask.objects(id=event.target).first()
+            self.title = stuff.title
+            self.body = stuff.body
+            self.answers_count = stuff.answers_count
+            self.created_at = stuff.created_at
+            self.url = '/ask/' + str(stuff.id)
+            self.user = event.user
+            self.type = event.type
+        elif(event.type == 'answer'):
+            stuff = Answer.objects(id=event.target).first()
+            self.title = stuff.ask.title
+            self.body = stuff.body
+            self.stars_count = stuff.vote
+            self.created_at = stuff.created_at
+            self.url = '/ask/' + str(stuff.ask.id)
+            self.user = event.user
+            self.type = event.type
