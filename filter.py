@@ -3,6 +3,7 @@ import re
 import markdown as Markdown
 from jinja2.utils import urlize, escape
 import urllib, hashlib
+import datetime
 
 def markdown(value):
     return Markdown.markdown(value)
@@ -24,6 +25,7 @@ def user_name_tag(user):
     return '<a href="/%s" class="user">%s</a>' % (user.login,user.name)
         
 def strftime(value, type='normal'):
+    """
     if type == 'normal':
         format="%Y-%m-%d %H:%M"
     elif type == 'long':
@@ -31,6 +33,20 @@ def strftime(value, type='normal'):
     else:
         format="%m-%d %H:%M"
     return value.strftime(format)
+    """
+    total_secs = (datetime.datetime.now() - value).total_seconds()
+    min = int(total_secs)/60
+    if(min <= 0):
+        return ' '
+    if(min < 60):
+        return str(min) + ' min'
+    hour = min/60
+    if(hour < 24):
+        return str(hour) + ' hour'
+        
+    day = hour/24
+    return str(day) + ' day'
+    
 
 def strfdate(value,type='normal'):
     if type == 'normal':

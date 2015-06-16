@@ -84,7 +84,7 @@ class Article():
             stuff = Ask.objects(id=event.target).first()
             self.title = stuff.title
             self.body = stuff.body
-            self.answers_count = stuff.answers_count
+            self.count = stuff.answers_count
             self.created_at = stuff.created_at
             self.url = '/ask/' + str(stuff.id)
             self.user = event.user
@@ -93,7 +93,7 @@ class Article():
             stuff = Answer.objects(id=event.target).first()
             self.title = stuff.ask.title
             self.body = stuff.body
-            self.stars_count = stuff.vote
+            self.count = stuff.vote
             self.created_at = stuff.created_at
             self.url = '/ask/' + str(stuff.ask.id)
             self.user = event.user

@@ -79,7 +79,6 @@ class BaseHandler(tornado.web.RequestHandler):
         articles = []
         if(events):
             for event in events:
-                print event.target
                 if(not event.target):
                     continue
                 article = Article(event)
@@ -113,7 +112,7 @@ class HomeHandler(BaseHandler):
             asks = None
             events = None
             if(user.time_line):
-                events = UserEvent.objects(id__in = user.time_line)
+                events = UserEvent.objects(id__in = user.time_line).order_by("-happended_at")
 
             articles = self.events_articles(events)
             """
@@ -344,7 +343,7 @@ class FollowHandler(BaseHandler):
         target = self.get_argument('id',None)
         if(target):
             me = self.get_current_user()
-            he = User.objects(name = target).first()
+            he = User.objects(login = target).first()
             he.update(add_to_set__followers = me)
             me.update(add_to_set__following = he)
 
@@ -354,7 +353,7 @@ class UnfollowHandler(BaseHandler):
         target = self.get_argument('id',None)
         if(target):
             me = self.get_current_user()
-            he = User.objects(name = target).first()
+            he = User.objects(login = target).first()
             he.update(pull__followers = me)
             me.update(pull__following = he)
 
