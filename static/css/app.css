@@ -12,10 +12,7 @@ ul,ol { list-style-position :inside; margin:2px 10px; }
 input,textarea { border: 1px solid #999; width: 250px; padding:3px; }
 input.long,textarea.long { width: 700px; }
 textarea.long { height:300px; }
-button { border-color: #062C50; background: #19558D; text-shadow: none; color: white; min-width: 40px; cursor: pointer;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
-  font-weight: bold; font-size: .9em; display: inline-block; padding: 3px 10px; text-align: center; }
+
 body { text-align:center; }
 .container { width:1260px; margin:0 auto; text-align:left; }
 #header {
@@ -38,8 +35,8 @@ body { text-align:center; }
 #main { margin:20px 0; }
 .left_wrapper { float:left; width:870px; }
 #footer .left_wrapper ,
-#main .left_wrapper { margin-left:70px; margin-right:20px; width:780px; }
-.sidebar { float:right: width:450px; }
+#main .left_wrapper { margin-left:70px; margin-right:20px; width:700px; }
+.sidebar { float:right; width:450px; margin-top:10px}
 
 .form { }
 .form .row { margin:5px 0; }
@@ -107,3 +104,11 @@ a.tag { margin:0px 2px; }
 
 .user_profile {}
 .user_profile .bio { margin-top:10px; }
+
+.profile-panel {width:450px;height:125px}
+.profile-panel .avatar {float:left;width:120px;}
+.profile-panel .profile-honour {float:middle; }
+.profile-panel .honour-list {}
+
+.sidebar .social-buttons {width:auto;}
+.social-buttons.inbox {margain-left:20px;}

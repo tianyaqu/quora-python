@@ -54,6 +54,7 @@ class Application(tornado.web.Application):
             login_url="/login",
             session_secret='08091287&^(01',
             session_dir=os.path.join(os.path.dirname(__file__), "tmp/session"),
+            debug = True,
         )
         self.session_manager = session.TornadoSessionManager(settings["session_secret"], settings["session_dir"])
         tornado.web.Application.__init__(self, handlers, **settings)

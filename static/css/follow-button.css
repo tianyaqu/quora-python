@@ -1,0 +1,82 @@
+/* Global button styles */
+
+.button {
+  position: relative;
+  display: inline-block;
+  padding: 0 10px;
+  border: 1px solid #6d8f29;
+  line-height: 24px;
+  background-color: #9dcc4a;
+
+}
+
+.button:hover {
+  background-color: #383b3e;
+  background-image: -webkit-linear-gradient(top,#adda4d,#86b846);
+}
+
+.button:active {
+  background-color: #2d2f32;
+  background-image: -webkit-linear-gradient(top,#adda4d,#86b846);
+}
+
+
+/* Follow button styles */
+
+.button.follow {
+  padding-left: 30px;
+}
+
+.button.follow:after {
+  content: '关注';
+}
+
+.button.follow:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 9px;
+  width: 12px;
+  height: 13px;
+  margin-top: -7px;
+  background-image: url(/static/img/icon-plus.png);
+}
+
+
+/* Unfollow button styles */
+
+.button.unfollow {
+  padding-left: 30px;
+  opacity: 0.6;
+}
+
+.button.unfollow:after {
+  content: '已关注';
+}
+
+.button.unfollow:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 7px;
+  width: 16px;
+  height: 12px;
+  margin-top: -7px;
+  background-image: url(/static/img/icon-check.png);
+}
+
+.button.unfollow:hover {
+  opacity: 1;
+}
+
+.button.unfollow:hover:after {
+  content: '取消关注';
+}
+
+.button.unfollow:hover:before {
+  left: 9px;
+  width: 12px;
+  height: 5px;
+  margin-top: -3px;
+  background-image: url(/static/img/icon-minus.png);
+}

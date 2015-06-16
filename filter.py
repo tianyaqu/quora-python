@@ -68,4 +68,11 @@ def avatar(user, size = 40):
     gravatar_url += urllib.urlencode({'s':str(size)})
     return "<a href=\"/%s\" class=\"avatar\"><img src=\"%s\" style=\"width:%dpx;\" title=\"%s\" /></a>" % (user.login,gravatar_url,size,user.name)
 
+
+def is_following(user,id):
+    for x in user.following:
+        if(x == id):
+            return True
+    return False
+    
     
