@@ -67,7 +67,7 @@ def avatar(user, size = 40):
     #gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(user.email).hexdigest() +  "?" 
     #gravatar_url += urllib.urlencode({'s':str(size)})
     gravatar_url = "/avatar?name=" + user.login
-    return "<a href=\"/%s\" class=\"avatar\"><img src=\"%s\" style=\"width:%dpx;\" title=\"%s\" /></a>" % (user.login,gravatar_url,size,user.name)
+    return "<a href=\"/%s\" class=\"avatar\"><img src=\"%s\" style=\"width:%dpx;height:%dpx\" title=\"%s\" /></a>" % (user.login,gravatar_url,size,size,user.name)
 
 def is_following(user,id):
     for x in user.following:
