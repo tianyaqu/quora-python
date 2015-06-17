@@ -380,7 +380,15 @@ class UploadUserImage(BaseHandler):
             try:
                 data_bytes = image[0]['body']
                 io_obj = BytesIO(data_bytes)
-                #img_obj = Image.open(io_obj)
+                
+                img_obj = Image.open(io_obj)
+
+                new_obj = img_obj.resize((128,128))
+
+                #io_obj = BytesIO()
+                new_obj.save(io_obj,format='JPEG')
+
+                io_obj = BytesIO(io_obj.getvalue())
                 user = User.objects(id=self.current_user.id).first()
                 user.avatar.replace(io_obj)
                 user.save()
@@ -399,6 +407,7 @@ class AvatarHandler(BaseHandler):
             if(user):
                 try:
                     h = user.avatar.get()
+                    #thumb = user.avatar.thumbnail
                     content = h.read()
                 except Exception,file_err:
                     content = open('unknown.png','rb').read()
