@@ -4,6 +4,7 @@ import tornado.web
 import tornado.auth
 from jinja2 import Template, Environment, FileSystemLoader
 from bson import objectid
+from PIL import Image
 from io import BytesIO
 
 
@@ -392,4 +393,25 @@ class UploadUserImage(BaseHandler):
 
 class AvatarHandler(BaseHandler):
     def get(self):
-        pass        
+        name = self.get_argument('name',None)
+        if(name):
+            user = User.objects(login=name).first()
+            if(user):
+                try:
+                    h = user.avatar.get()
+                    content = h.read()
+                except Exception,file_err:
+                    content = open('unknown.png','rb').read()
+                io =  BytesIO(content)
+                """
+                i=Image.open(io)
+                i.rotate(45).show()
+
+                f = Image.open('img/' + filename)
+                o = io.BytesIO()
+                f.save(o, format="JPEG")
+                """
+                s = io.getvalue()
+                self.set_header('Content-type', 'image/jpg')
+                self.set_header('Content-length', len(s))
+                self.write(s)
