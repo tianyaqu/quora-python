@@ -42,6 +42,8 @@ class Application(tornado.web.Application):
             (r"/follow", FollowHandler),
             (r"/unfollow", UnfollowHandler),
             (r"/topicfollow", TopicFollowHandler),
+            (r"/upload_user_image", UploadUserImage),
+            (r"/avatar", AvatarHandler),
             (r"/([^/]+)", ProfileHandler),
 
         ]

@@ -13,6 +13,7 @@ class User(Document):
     followers = ListField(ReferenceField('self', dbref=False))
     following = ListField(ReferenceField('self', dbref=False))
     time_line = ListField(ObjectIdField())
+    avatar = ImageField(thumbnail_size=(100,100,True))
     created_at = DateTimeField(default=datetime.datetime.now)
 
 class Comment(EmbeddedDocument):

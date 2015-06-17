@@ -28,3 +28,17 @@
   </form>
 </div>
 {% endblock %}
+
+{% block sidebar %}
+
+<div class="profile-panel">
+  {{ current_user|avatar(120) }}
+  
+    <form action='/upload_user_image' method='post' enctype='multipart/form-data'> 
+     <input type='file' name='uploaded_image'> 
+     <input type='submit' value='Upload'> 
+     {{ xsrf_form_html() }}
+    </form> 
+</div>
+
+{% endblock %}

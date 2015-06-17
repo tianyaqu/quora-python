@@ -4,10 +4,13 @@ import tornado.web
 import tornado.auth
 from jinja2 import Template, Environment, FileSystemLoader
 from bson import objectid
+from io import BytesIO
+
 
 import filter, utils, session
 from forms import *
 from models import *
+
 
 class BaseHandler(tornado.web.RequestHandler):
 
@@ -95,7 +98,6 @@ class DiscoverHandler(BaseHandler):
         last_id = self.get_argument("last", None)
         if not last_id:
           asks = Ask.objects.order_by("-replied_at")[:10]
-          print type(asks),asks[2]
         else:
           asks = Ask.order_by("-replied_at").objects(id_lt = last_id)[:10]
         if not asks:
@@ -368,3 +370,26 @@ class TopicFollowHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         pass
+        
+class UploadUserImage(BaseHandler):
+    @tornado.web.authenticated
+    def post(self):
+        image = self.request.files.get('uploaded_image')
+        if image:
+            try:
+                data_bytes = image[0]['body']
+                io_obj = BytesIO(data_bytes)
+                #img_obj = Image.open(io_obj)
+                user = User.objects(id=self.current_user.id).first()
+                user.avatar.replace(io_obj)
+                user.save()
+            except Exception,format_err:
+                self.notice(format_err,"error")
+        else:
+            self.notice('No file in post',"error")
+            
+        self.redirect('settings')
+
+class AvatarHandler(BaseHandler):
+    def get(self):
+        pass        
