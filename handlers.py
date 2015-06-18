@@ -158,6 +158,7 @@ class AskHandler(BaseHandler):
             # this part could be put in a queue
             for x in self.current_user.followers:
                 User.objects(id = x.id).update_one(push__time_line = event.id)
+                User.objects(id = self.current_user.id).update_one(push__user_events = event.id)
             
             self.redirect("/ask/%s" % ask.id)
         except Exception,exc:
@@ -204,6 +205,7 @@ class AnswerHandler(BaseHandler):
             # this part could be put in a queue
             for x in self.current_user.followers:
                 User.objects(id = x.id).update_one(push__time_line = event.id)
+                User.objects(id = self.current_user.id).update_one(push__user_events = event.id)
             self.redirect("/ask/%s" % ask_id)
         except Exception,exc:
             self.notice(exc,"error")
@@ -356,6 +358,9 @@ class FollowHandler(BaseHandler):
 
             he.update(add_to_set__followers = me)
             me.update(add_to_set__following = he)
+            if(he.user_events):
+                for event in he.user_events:
+                    me.update(push__time_line = event)
 
 class UnfollowHandler(BaseHandler):
     @tornado.web.authenticated
@@ -366,6 +371,10 @@ class UnfollowHandler(BaseHandler):
             he = User.objects(login = target).first()
             he.update(pull__followers = me)
             me.update(pull__following = he)
+            inter = list(set(me.time_line) & set(he.user_events))
+            if(inter):
+                for event in inter:
+                    me.update(pull__time_line = event)
 
 class TopicFollowHandler(BaseHandler):
     @tornado.web.authenticated

@@ -13,6 +13,7 @@ class User(Document):
     followers = ListField(ReferenceField('self', dbref=False))
     following = ListField(ReferenceField('self', dbref=False))
     time_line = ListField(ObjectIdField())
+    user_events = ListField(ObjectIdField())
     avatar = ImageField(thumbnail_size=(75,75,True))
     created_at = DateTimeField(default=datetime.datetime.now)
 
