@@ -22,7 +22,7 @@ def tags_name_tag(tags,limit = 0):
     return ",".join(html)
 
 def user_name_tag(user):
-    return '<a href="/%s" class="user">%s</a>' % (user.login,user.name)
+    return '<a href="/u/%s" class="user">%s</a>' % (user.login,user.name)
         
 def strftime(value, type='normal'):
     """
@@ -69,7 +69,7 @@ def avatar(user,size = 40,c_type = 0):
     if(c_type != 0):
         type = 'item-link-avatar'
 
-    return "<a href=\"/%s\" class=\"%s\"><img src=\"%s\" style=\"width:%dpx;height:%dpx\" title=\"%s\" /></a>" % (user.login,type,gravatar_url,size,size,user.name)
+    return "<a href=\"/u/%s\" class=\"%s\"><img src=\"%s\" style=\"width:%dpx;height:%dpx\" title=\"%s\" /></a>" % (user.login,type,gravatar_url,size,size,user.name)
 
 
 def is_following(user,id):

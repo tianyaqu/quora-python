@@ -44,7 +44,7 @@ class Application(tornado.web.Application):
             (r"/topicfollow", TopicFollowHandler),
             (r"/upload_user_image", UploadUserImage),
             (r"/avatar", AvatarHandler),
-            (r"/([^/]+)", ProfileHandler),
+            (r"/u/([^/]+)", ProfileHandler),
 
         ]
         settings = dict(
