@@ -152,13 +152,14 @@ class AskHandler(BaseHandler):
             tags = utils.format_tags(frm.tags))
         try:
             ask.save()
+            # this part could be put in a queue
             event = UserEvent(user=self.current_user,type="ask",target=ask.id)
             event.save()
-          
-            # this part could be put in a queue
+            User.objects(id = self.current_user.id).update_one(push__user_events = event.id)          
+
             for x in self.current_user.followers:
                 User.objects(id = x.id).update_one(push__time_line = event.id)
-                User.objects(id = self.current_user.id).update_one(push__user_events = event.id)
+
             
             self.redirect("/ask/%s" % ask.id)
         except Exception,exc:
@@ -199,13 +200,19 @@ class AnswerHandler(BaseHandler):
         try:
             answer.save()
             Ask.objects(id=ask_id).update_one(inc__answers_count=1,set__replied_at=answer.created_at)
-            
+
+            # this part could be put in a queue
             event = UserEvent(user=self.current_user,type="answer",target=answer.id)
             event.save()
-            # this part could be put in a queue
-            for x in self.current_user.followers:
-                User.objects(id = x.id).update_one(push__time_line = event.id)
-                User.objects(id = self.current_user.id).update_one(push__user_events = event.id)
+            User.objects(id = self.current_user.id).update_one(push__user_events = event.id)
+            ask.update(push__user_events = event.id)
+            if(self.current_user.followers):
+                for x in self.current_user.followers:
+                    User.objects(id = x.id).update_one(push__time_line = event.id)
+            if(ask.followers):
+                for x in ask.followers:
+                    User.objects(id = x.id).update_one(push__time_line = event.id)
+                    
             self.redirect("/ask/%s" % ask_id)
         except Exception,exc:
             self.notice(exc,"error")
@@ -369,12 +376,13 @@ class UnfollowHandler(BaseHandler):
         if(target):
             me = self.get_current_user()
             he = User.objects(login = target).first()
-            he.update(pull__followers = me)
-            me.update(pull__following = he)
-            inter = list(set(me.time_line) & set(he.user_events))
-            if(inter):
-                for event in inter:
-                    me.update(pull__time_line = event)
+            if(me and he):
+                he.update(pull__followers = me)
+                me.update(pull__following = he)
+                inter = list(set(me.time_line) & set(he.user_events))
+                if(inter):
+                    for event in inter:
+                        me.update(pull__time_line = event)
 
 class TopicFollowHandler(BaseHandler):
     @tornado.web.authenticated
@@ -433,3 +441,28 @@ class AvatarHandler(BaseHandler):
                 self.set_header('Content-type', 'image/jpg')
                 self.set_header('Content-length', len(s))
                 self.write(s)
+
+class FollowAskHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self, id):
+        ask = Ask.objects(id=id).first()
+        if(ask):
+            if ask.followers.count(self.current_user):
+                self.write("-1")
+                return
+            ask.update(add_to_set__followers=self.current_user)
+            event = UserEvent(user=self.current_user,type="followAsk",target=ask.id)
+            event.save()
+            user = User.objects(id = self.current_user.id).update_one(push__user_events = event.id)
+
+class UnFollowAskHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self, id):
+        ask = Ask.objects(id=id).first()
+        me = User.objects(id = self.current_user.id).first()
+        if(ask and me):
+            ask.update(pull__followers=self.current_user)
+            inter = list(set(me.time_line) & set(ask.user_events))
+            if(inter):
+                for event in inter:
+                    me.update(pull__time_line = event)

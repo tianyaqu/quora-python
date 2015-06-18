@@ -34,6 +34,8 @@ class Application(tornado.web.Application):
             (r"/feed", FeedHandler),
             (r"/ask/([^/]+)/answer", AnswerHandler),
             (r"/ask/([^/]+)/flag", FlagAskHandler),
+            (r"/ask/([^/]+)/follow", FollowAskHandler),
+            (r"/ask/([^/]+)/unfollow", UnFollowAskHandler),
             (r"/ask", AskHandler),
             (r"/answer/([^/]+)/vote", AnswerVoteHandler),
             (r"/comment/([^/]+)/([^/]+)", CommentHandler),

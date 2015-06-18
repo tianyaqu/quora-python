@@ -36,6 +36,8 @@ class Ask(Document):
     comments = ListField(EmbeddedDocumentField(Comment))
     answers_count = IntField(required=True,default=0)
     flagged_users = ListField(ReferenceField(User))
+    followers = ListField(ReferenceField(User))
+    user_events = ListField(ObjectIdField())
     created_at = DateTimeField(default=datetime.datetime.now)
     replied_at = DateTimeField(default=datetime.datetime.now)
 
@@ -82,7 +84,7 @@ class UserEvent(Document):
     
 class Article():
     def __init__(self,event):
-        if(event.type == 'ask'):
+        if(event.type == 'ask' or event.type == 'followAsk'):
             stuff = Ask.objects(id=event.target).first()
             self.title = stuff.title
             self.body = stuff.body
