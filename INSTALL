@@ -3,5 +3,6 @@ pip install mongoengine
 pip install formencode
 # at the moment,3.0 has a connection bug
 pip install pymongo==2.8 
+pip install Pillow 
 
 
