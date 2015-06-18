@@ -6,9 +6,12 @@
   <div class="ask">
     <div class = "avatar"> 
         {{ item.user|avatar(38,1) }}
+        {% if item.type != 'ask' %}
         <div class="item-vote">
         <a name="expand" class="item-vote-count" href="javascript:;">{{item.count}}</a>
         </div>
+        {% endif %}
+
     </div>
     <div class = "ask-border">
     {% if item.type == 'ask' %}
