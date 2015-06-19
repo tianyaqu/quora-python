@@ -142,3 +142,29 @@ a.tag { margin:0px 2px; }
   overflow: hidden;
   -webkit-text-size-adjust: none;
 }
+
+.hot_show {
+  margin-top: 10px;
+}
+
+.tab-navs {
+  margin: 0 0 10px;
+  padding: 0;
+  text-align: center;
+  list-style: none;
+  border-bottom: 1px solid #ccc;
+}
+
+.tab-navs .tab-nav>a {
+  display: block;
+  padding: 5px 15px;
+  min-width: 45px;
+  color: #259;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 2px 2px 0 0;
+}
+
+.hot_show .tab-navs .tab-nav>a {
+  color: #999;
+}

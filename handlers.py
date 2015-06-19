@@ -111,13 +111,13 @@ class DiscoverHandler(BaseHandler):
     def get(self):
         last_id = self.get_argument("last", None)
         if not last_id:
-          asks = Ask.objects.order_by("-replied_at")[:10]
+          asks = Ask.objects.order_by("-replied_at")[:5]
         else:
-          asks = Ask.order_by("-replied_at").objects(id_lt = last_id)[:10]
+          asks = Ask.objects(id__lt = last_id).order_by("-replied_at")[:5]
         if not asks:
             self.redirect("/ask")
         else:
-            self.render("home.html", asks=asks)
+            self.render("discovery.html", asks=asks)
 
 
 class HomeHandler(BaseHandler):
@@ -137,7 +137,7 @@ class HomeHandler(BaseHandler):
                 asks = Ask.objects(id__in = ask_ids).order_by("-replied_at").limit(10)
             """
         else:
-            asks = Ask.objects(id_lt = last_id).order_by("-replied_at").limit(10)
+            asks = Ask.objects(id__lt = last_id).order_by("-replied_at").limit(10)
 
         #self.render("home.html", asks=asks)
 

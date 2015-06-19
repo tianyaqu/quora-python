@@ -37,7 +37,7 @@ def strftime(value, type='normal'):
     total_secs = (datetime.datetime.now() - value).total_seconds()
     min = int(total_secs)/60
     if(min <= 0):
-        return ' '
+        return 'now'
     if(min < 60):
         return str(min) + ' min'
     hour = min/60

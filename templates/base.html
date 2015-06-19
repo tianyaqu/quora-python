@@ -28,8 +28,8 @@
           <a href="/login">登陆</a>
           <a href="/register">注册</a>
           {% else %}
+          <a href="/discovery">发现</a>
           {{ current_user|user_name_tag }}
-          <a href="/settings">个人设置</a>
           <a href="/logout">退出</a>
           {% endif %}
         </div>
