@@ -13,7 +13,7 @@ input,textarea { border: 1px solid #999; width: 250px; padding:3px; }
 input.long,textarea.long { width: 700px; }
 textarea.long { height:300px; }
 
-body { text-align:center; }
+body { text-align:center;}
 .container { width:1260px; margin:0 auto; text-align:left; }
 #header {
   background: #505759;
@@ -43,7 +43,7 @@ body { text-align:center; }
 .form .row label { font-size: 12px; color:#666; }
 .form span.error-message { color:red; }
 
-.ask { margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:12px; }
+.ask { margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px; }
 .ask h1 { font-size: 1.8em; line-height: 1.3em; letter-spacing: -1px; margin-bottom: 0; }
 .ask .title { font-size: 1.5em; line-height: 1.2em; font-weight: bold;}
 .ask .info { color: #999; margin:3px 0;  }
@@ -85,7 +85,7 @@ a.tag { margin:0px 2px; }
 .answer .votes a { color:#999; }
 
 .answer .action,
-.ask .action { color:#999; margin:3px 0; }
+.ask .action { color:#999; margin:3px 0; padding-top:15px;}
 .ask .action a,
 .answer .action a { color:#538DC2; }
 .answer .action a.voted { color:#666; }
@@ -118,6 +118,8 @@ a.tag { margin:0px 2px; }
 */
 .ask .avatar { float:left; width:20px; position:relative; margin-top:1px; margin-right:8px;  }
 .ask .ask-border { padding-left:45px;}
+.ask .body {padding-top:5px;}
+.ask .action a.followed { color:#999; }
 
 .item-vote {
   position: absolute;
@@ -140,4 +142,3 @@ a.tag { margin:0px 2px; }
   overflow: hidden;
   -webkit-text-size-adjust: none;
 }
-

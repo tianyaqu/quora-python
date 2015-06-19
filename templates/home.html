@@ -1,9 +1,36 @@
 {% extends "base.html" %}
+{% block scripts %}
+<script type="text/javascript" src="{{ static_url("js/wmd.js") }}"></script>
+<script type="text/javascript" src="{{ static_url("js/showdown.js") }}"></script>
+<script type="text/javascript">
+
+  function ask_follow(id){
+    ask_x = $(".action a.follow","#ask_"+id)
+    if(ask_x.text() == "关注问题"){
+        ask_x.addClass("followed").text("已关注");
+        $.get("/ask/" + id + "/follow",function(s){
+      });
+    }
+    else{
+        ask_x.removeClass("followed").text("关注问题");
+        $.get("/ask/" + id + "/unfollow",function(s){
+      });
+    }
+
+    return false;
+  }
+  
+</script>
+{% endblock %}
 
 {% block body %}
 <div id="articles">
   {% for item in articles %}
-  <div class="ask">
+  {% if item.type == 'answer' %}
+    <div id="ask_{{item.ss.ask.id}}" class="ask">
+  {% else %}
+    <div id="ask_{{item.ss.id}}" class="ask">
+  {% endif %}
     <div class = "avatar"> 
         {{ item.user|avatar(38,1) }}
         {% if item.type != 'ask' %}
@@ -26,6 +53,28 @@
     <div class="body">
       {{ item.body|truncate_lines|md_body }}
     </div>
+    <div class="action">
+        {% if item.type == 'answer' %}
+            {% if item.ss.ask.followers.count(current_user) == 0 %}
+                <a href="#" class="follow" onclick="return ask_follow('{{item.ss.ask.id}}');">关注问题</a>
+            {% else %}
+                <a href="#" class="follow followed" onclick="return ask_follow('{{item.ss.ask.id}}');">已关注</a>
+            {% endif %}
+        {% else %}
+            {% if item.ss.followers.count(current_user) == 0 %}
+                <a href="#" class="follow" onclick="return ask_follow('{{item.ss.id}}');">关注问题</a>
+            {% else %}
+                <a href="#" class="follow followed" onclick="return ask_follow('{{item.ss.id}}');">已关注</a>
+            {% endif %}
+        {% endif %}
+
+        {% if item.comments|count == 0 %}
+        <a href="#" onclick="return toggleAnswerComments('{{ item.id }}');">给予评论</a>
+        {% else %}
+        <a href="#" onclick="return toggleAnswerComments('{{ item.id }}');">{{ item.comments|count }} 条评论</a>
+        {% endif %}
+    </div>
+
     </div>
   </div>
   {% endfor %}
@@ -34,7 +83,6 @@
   {% endif %}
 </div>
 {% endblock %}
-
 
 {% block sidebar %}
 {% if current_user %}

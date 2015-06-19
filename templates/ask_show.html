@@ -77,6 +77,23 @@
     });
     return false;
   }
+
+  function ask_follow(id){
+    ask_x = $(".ask a.follow")
+    if(ask_x.text() == "关注问题"){
+        ask_x.addClass("followed").text("已关注");
+        $.get("/ask/" + id + "/follow",function(s){
+      });
+    }
+    else{
+        ask_x.removeClass("followed").text("关注问题");
+        $.get("/ask/" + id + "/unfollow",function(s){
+      });
+    }
+
+    return false;
+  }
+  
 </script>
 {% endblock %}
 {% from "_comments.html" import comments_render %}
@@ -87,7 +104,12 @@
     {{ ask.created_at|strftime }}, {{ ask.answers_count }} 个回答</div>
   <div class="md_body">{{ ask.body|md_body }}</div>
   <div class="action">
-    {% if ask.comments|count == 0 %}
+    {% if ask.followers.count(current_user) == 0 %}
+        <a href="#" class="follow" onclick="return ask_follow('{{ask.id}}');">关注问题</a>
+    {% else %}
+        <a href="#" class="follow followed" onclick="return ask_follow('{{ask.id}}');">已关注</a>
+    {% endif %}
+    • {% if ask.comments|count == 0 %}
     <a href="#" onclick="return toggleAskComments();">给予评论</a>
     {% else %}
     <a href="#" onclick="return toggleAskComments();">{{ ask.comments|count }} 条评论</a>

@@ -73,9 +73,10 @@ def avatar(user,size = 40,c_type = 0):
 
 
 def is_following(user,id):
-    for x in user.following:
-        if(x == id):
-            return True
+    if(user and user.following):
+        for x in user.following:
+            if(x == id):
+                return True
     return False
     
     

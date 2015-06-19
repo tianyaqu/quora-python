@@ -3,6 +3,17 @@ from mongoengine import *
 from bson import objectid
 import datetime
 
+class UserEvent(Document):
+    happended_at = DateTimeField(default=datetime.datetime.now)
+    #user = ReferenceField(User)
+    user = ObjectIdField()
+    type = StringField()
+    target = ObjectIdField()
+
+class Story(EmbeddedDocument):
+    event = ReferenceField(UserEvent)
+    source = StringField()
+
 class User(Document):
     login = StringField(required=True,min_length=4,max_length=20)
     email = EmailField(required=True,unique=True)
@@ -12,8 +23,9 @@ class User(Document):
     bio = StringField(max_length=1000)
     followers = ListField(ReferenceField('self', dbref=False))
     following = ListField(ReferenceField('self', dbref=False))
-    time_line = ListField(ObjectIdField())
-    user_events = ListField(ObjectIdField())
+    time_line = ListField(EmbeddedDocumentField(Story))
+    #user_events = ListField(ObjectIdField())
+    user_events = ListField(ReferenceField(UserEvent))
     avatar = ImageField(thumbnail_size=(75,75,True))
     created_at = DateTimeField(default=datetime.datetime.now)
 
@@ -37,7 +49,8 @@ class Ask(Document):
     answers_count = IntField(required=True,default=0)
     flagged_users = ListField(ReferenceField(User))
     followers = ListField(ReferenceField(User))
-    user_events = ListField(ObjectIdField())
+    #user_events = ListField(ObjectIdField())
+    user_events = ListField(ReferenceField(UserEvent))
     created_at = DateTimeField(default=datetime.datetime.now)
     replied_at = DateTimeField(default=datetime.datetime.now)
 
@@ -76,12 +89,7 @@ class Answer(Document):
                                      push__votes=new_vote)
         return 1
 
-class UserEvent(Document):
-    happended_at = DateTimeField(default=datetime.datetime.now)
-    user = ReferenceField(User)
-    type = StringField()
-    target = ObjectIdField()
-    
+""" 
 class Article():
     def __init__(self,event):
         if(event.type == 'ask' or event.type == 'followAsk'):
@@ -102,3 +110,29 @@ class Article():
             self.url = '/ask/' + str(stuff.ask.id)
             self.user = event.user
             self.type = event.type
+"""
+class Article():
+    def __init__(self,story):
+        event = story.event
+        if(event.type == 'ask' or event.type == 'followAsk'):
+            stuff = Ask.objects(id=event.target).first()
+            self.ss = stuff
+            self.title = stuff.title
+            self.body = stuff.body
+            self.count = stuff.answers_count
+            self.created_at = stuff.created_at
+            self.url = '/ask/' + str(stuff.id)
+            self.user = User.objects(id = event.user).first()
+            self.type = event.type
+        elif(event.type == 'answer'):
+            stuff = Answer.objects(id=event.target).first()
+            self.ss = stuff
+            self.title = stuff.ask.title
+            self.body = stuff.body
+            self.count = stuff.vote
+            self.created_at = stuff.created_at
+            self.url = '/ask/' + str(stuff.ask.id)
+            self.user = User.objects(id = event.user).first()
+            self.type = event.type
+            self.id = stuff.id
+        self.source = story.source
