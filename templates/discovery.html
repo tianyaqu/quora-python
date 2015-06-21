@@ -1,13 +1,22 @@
 {% extends "base.html" %}
 
+{% block scripts %}
+<script type="text/javascript">
+    $(function () {
+        $('#myTab li:eq(0) a').tab('show');
+    });
+</script>
+{% endblock %}
+
 {% block body %}
+
 <div id="asks">
   {% for item in asks %}
   <div class="ask">
     <div class = "avatar"> 
         {{ item.user|avatar(38,1) }}
     </div>
-    <div class = "ask-border">
+    <div class="ask-border">
         <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }}前 提出了问题,{{ item.answers_count }} 个回答</div>
         <div class="title"><a href="/ask/{{ item.id }}">{{ item.title|e }}</a></div>
         <div class="body">
@@ -22,11 +31,59 @@
 </div>
 
 <div id="hot_area">
-    <div class="hot_show">
-        <ul class="tab-navs clearfix">
-            <li class="tab-nav"><a class="anchor" href="#daily-hot">今日最热</a></li>
-            <li class="tab-nav active"><a class="anchor" href="#monthly-hot">本月最热</a></li>
+    <div id="hot_show" class="hot_show">
+        <ul id="myTab" class="nav-tabs nav">
+            <li><a href="#daily-hot" data-toggle="tab">今日最热</a></li>
+            <li class="active"><a href="#monthly-hot" data-toggle="tab">本月最热</a></li>
         </ul>
+    </div>
+
+    <div class="tab-content" id = "content">
+        <div class="tab-pane" id="daily-hot">
+            {% for item in asks %}
+          <div class="hot">
+            <div class="title"><a href="/ask/{{ item.id }}">{{ item.title|e }}</a></div>
+            <div class="content_wrapper">
+                <div class = "avatar"> 
+                    {{ item.user|avatar(38,1) }}
+                    <div class="item-vote">
+                        <a name="expand" class="item-vote-count" href="javascript:;">5</a>
+                    </div>
+                </div>
+
+                <div class="hot-border">
+                    <div class="info">{{ item.user|user_name_tag }}</div>
+                    <div class="body">
+                        {{ item.body|truncate_lines|md_body }}
+                    </div>
+                </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class = "tab-pane" id="monthly-hot">
+            {% for item in asks %}
+          <div class="hot">
+            <div class="title"><a href="/ask/{{ item.id }}">{{ item.title|e }}</a></div>
+            <div class="content_wrapper">
+                <div class = "avatar"> 
+                    {{ item.user|avatar(38,1) }}
+                    <div class="item-vote">
+                        <a name="expand" class="item-vote-count" href="javascript:;">5</a>
+                    </div>
+                </div>
+
+                <div class="hot-border">
+                    <div class="info">{{ item.user|user_name_tag }}</div>
+                    <div class="body">
+                        {{ item.body|truncate_lines|md_body }}
+                    </div>
+                </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}
