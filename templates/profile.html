@@ -1,4 +1,35 @@
 {% extends "base.html" %}
+{% block scripts %}
+<script>
+
+    function follow(id) {
+        var xmlhttp;
+        if (window.XMLHttpRequest)
+        {// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp=new XMLHttpRequest();
+        }
+        else
+        {// code for IE6, IE5
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        ask_x = $("a.follow")
+        act = ask_x.hasClass('unfollow')
+        ask_x.toggleClass('unfollow')
+        if(act == 0)
+        {
+            xmlhttp.open("GET","/follow?id="+id,true);
+        }
+        else
+        {
+            xmlhttp.open("GET","/unfollow?id="+id,true);
+        }
+        xmlhttp.send();
+    }
+    
+</script>
+{% endblock %}
+
 {% block body %}
 <div class="user_profile">
 <h1>{{ user.name }}</h1>
@@ -32,9 +63,9 @@
     {% if current_user == user %}
         <a href="/settings" ">修改资料</a>
     {% elif current_user|is_following(user) %}
-        <a class="button unfollow" href="javascript:void(0)" onclick="follow('{{user.login}}',0)"></a>
+        <a class="button follow unfollow" href="javascript:void(0)" onclick="follow('{{user.login}}')"></a>
     {% else %}
-        <a class="button follow" href="javascript:void(0)" onclick="follow('{{user.login}}',1)"></a>
+        <a class="button follow" href="javascript:void(0)" onclick="follow('{{user.login}}')"></a>
     {%endif %}
     <a href="/inbox/{{user.id}}" class="inbox">私信</a>
   </div>
@@ -42,4 +73,3 @@
   </div>
 
 {% endblock %}
-

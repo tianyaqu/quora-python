@@ -4,14 +4,16 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <title>{{ title }}</title>
   <link rel="stylesheet" href="{{ static_url("css/app.css") }}" type="text/css" />
+  <link rel="stylesheet" href="{{ static_url("css/bootstrap.css") }}" type="text/css" />
   <link rel="stylesheet" href="{{ static_url("css/follow-button.css") }}" type="text/css" />
    {% block styles %}{% endblock %} 
    <script type="text/javascript" src="{{ static_url("js/jquery.js") }}"></script>
+   <script type="text/javascript" src="{{ static_url("js/bootstrap.js") }}"></script>
    {% block scripts %}{% endblock %} 
 </head>
 <body>
   <div id="header">
-    <div class="container">
+    <div class="my_container">
       <div class="left_wrapper">
         <div id="site_name">
           <a href="/">{{ settings['app_name'] }}</a>
@@ -37,7 +39,7 @@
     </div>
   </div>
   <div id="main">
-    <div class="container">
+    <div class="my_container">
       <div class="left_wrapper">
         {% block body %}{% endblock %}
       </div>
@@ -47,7 +49,7 @@
     </div>
   </div>
   <div id="footer">
-    <div class="container">
+    <div class="my_container">
       <div class="left_wrapper">
         <p class="copyright">
           &copy; {{ settings['app_name'] }}
@@ -56,46 +58,6 @@
     </div>
   </div>
   {% block bottom %}{% endblock %}
-    <script>
-    // Toggle follow/unfollow class
 
-    var followButton = document.querySelector('.follow');
-
-    //followButton.addEventListener('click', toggleFollow);
-
-    function toggleFollow() {
-      followButton.classList.toggle('follow');
-      followButton.classList.toggle('unfollow');
-    }
-    
-    function follow(id,act) {
-        var xmlhttp;
-        if (window.XMLHttpRequest)
-        {// code for IE7+, Firefox, Chrome, Opera, Safari
-            xmlhttp=new XMLHttpRequest();
-        }
-        else
-        {// code for IE6, IE5
-            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-        }
-        xmlhttp.onreadystatechange=function()
-        {
-            if (xmlhttp.readyState==4 && xmlhttp.status==200)
-            {
-                toggleFollow();
-            }
-        }
-        if(act == 1)
-        {
-            xmlhttp.open("GET","/follow?id="+id,true);
-        }
-        else
-        {
-            xmlhttp.open("GET","/unfollow?id="+id,true);
-        }
-        xmlhttp.send();
-    }
-    
-  </script>
 </body>
 </html>
