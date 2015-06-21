@@ -40,7 +40,7 @@
 
     <div class="tab-content" id = "content">
         <div class="tab-pane" id="daily-hot">
-            {% for item in asks %}
+            {% for item in daily_hots %}
           <div class="hot">
             <div class="title"><a href="/ask/{{ item.id }}">{{ item.title|e }}</a></div>
             <div class="content_wrapper">
@@ -63,7 +63,7 @@
         </div>
 
         <div class = "tab-pane" id="monthly-hot">
-            {% for item in asks %}
+            {% for item in monthly_hots %}
           <div class="hot">
             <div class="title"><a href="/ask/{{ item.id }}">{{ item.title|e }}</a></div>
             <div class="content_wrapper">

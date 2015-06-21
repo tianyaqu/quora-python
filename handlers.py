@@ -117,7 +117,7 @@ class DiscoverHandler(BaseHandler):
         if not asks:
             self.redirect("/ask")
         else:
-            self.render("discovery.html", asks=asks)
+            self.render("discovery.html", asks=asks,daily_hots=asks[0:3],monthly_hots=asks[3:5])
 
 
 class HomeHandler(BaseHandler):
