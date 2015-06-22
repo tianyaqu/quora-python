@@ -2,9 +2,39 @@
 
 {% block scripts %}
 <script type="text/javascript">
-    $(function () {
-        $('#myTab li:eq(0) a').tab('show');
+$(function (){
+    $('#hot_tabs li:eq(0) a').tab('show');
+});
+
+function num_human_js(num){
+    if(num < 100){
+        return (num)
+    }
+    else if(num < 1000){
+        return parseInt(num/100) + '00+';
+    }
+    else if(num < 10000){
+        return parseInt(num/1000) + ',000+';
+    }
+    else{
+        return parseInt(num/10000) + '0,000+';
+    }
+}
+function get_hot_topcs(el){
+    $.get("topic_hot", function(json){
+        var jsonList=eval("("+json+")");
+        var i = 1;
+        for(var itr in jsonList){
+            var id = 'topic_' + i;
+            item = jsonList[itr];
+            content = item['name'] + '(<strong>' + num_human_js(item['cnt']) + '</strong>)';
+            var h = $('#'+id+'> span').html(content);
+            i = i + 1;
+        }
+
     });
+}
+
 </script>
 {% endblock %}
 
@@ -17,7 +47,7 @@
         {{ item.user|avatar(38,1) }}
     </div>
     <div class="ask-border">
-        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }}前 提出了问题,{{ item.answers_count }} 个回答</div>
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 提出了问题,{{ item.answers_count }} 个回答</div>
         <div class="title"><a href="/ask/{{ item.id }}">{{ item.title|e }}</a></div>
         <div class="body">
             {{ item.body|truncate_lines|md_body }}
@@ -26,13 +56,13 @@
   </div>
   {% endfor %}
   {% if asks|length == 5 %}
-  <a class="page_more" href="/discovery?last={{ asks[4].id }}">查看更多...</a>
+  <a class="page_more" href="/discovery?last={{ asks[4].id }}">更多新问题...</a>
   {% endif %}
 </div>
 
 <div id="hot_area">
     <div id="hot_show" class="hot_show">
-        <ul id="myTab" class="nav-tabs nav">
+        <ul id="hot_tabs" class="nav-tabs nav">
             <li><a href="#daily-hot" data-toggle="tab">今日最热</a></li>
             <li class="active"><a href="#monthly-hot" data-toggle="tab">本月最热</a></li>
         </ul>
@@ -90,10 +120,32 @@
 
 
 {% block sidebar %}
-{% if current_user %}
-<div class="box">
-  {{ current_user|avatar(120) }}
-</div>
-{% endif %}
+<div class="hot-topics">
+    <div class="hot-topics-head">
+        <div class="header-name">热门话题</div>
+        <a class="round" onclick="return get_hot_topcs(this);" href="javascript:void(0)">换一批</a>
+    </div>
+    <ul class="hot-topics-wrapper">
+        {% for topic in hot_topics %}
+        <li id="{{'topic_' + loop.index|string }}" class="topic">
+            <span>{{topic.name}}(<strong>{{topic.cnt|num_human}}</strong>)</span>
+            <a class="follow">关注</a>
+        </li>
+        {% endfor %}
 
+    </ul>
+    <div class="more-topics">
+        <div>
+            <a href="/topics" class="m_button button">进入话题广场</a>
+        </div>
+        <a href="/topics" class="text">
+            来这里发现更多有趣话题
+        </a>
+    </div>
+</div>
+
+
+
+<div class="ads-show">
+</div>
 {% endblock %}

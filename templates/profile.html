@@ -1,31 +1,32 @@
 {% extends "base.html" %}
+
 {% block scripts %}
 <script>
 
-    function follow(id) {
-        var xmlhttp;
-        if (window.XMLHttpRequest)
-        {// code for IE7+, Firefox, Chrome, Opera, Safari
-            xmlhttp=new XMLHttpRequest();
-        }
-        else
-        {// code for IE6, IE5
-            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-        }
-
-        ask_x = $("a.follow")
-        act = ask_x.hasClass('unfollow')
-        ask_x.toggleClass('unfollow')
-        if(act == 0)
-        {
-            xmlhttp.open("GET","/follow?id="+id,true);
-        }
-        else
-        {
-            xmlhttp.open("GET","/unfollow?id="+id,true);
-        }
-        xmlhttp.send();
+function follow(id) {
+    var xmlhttp;
+    if (window.XMLHttpRequest)
+    {// code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp=new XMLHttpRequest();
     }
+    else
+    {// code for IE6, IE5
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+    follow_handler = $("a.follow")
+    act = follow_handler.hasClass('unfollow')
+    follow_handler.toggleClass('unfollow')
+    if(act == 0)
+    {
+        xmlhttp.open("GET","/follow?id="+id,true);
+    }
+    else
+    {
+        xmlhttp.open("GET","/unfollow?id="+id,true);
+    }
+    xmlhttp.send();
+}
     
 </script>
 {% endblock %}

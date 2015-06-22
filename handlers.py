@@ -1,5 +1,7 @@
 # coding: utf-8
 import sys
+import random
+import json
 import tornado.web
 import tornado.auth
 from jinja2 import Template, Environment, FileSystemLoader
@@ -30,6 +32,7 @@ class BaseHandler(tornado.web.RequestHandler):
         env.filters['strfdate'] = filter.strfdate
         env.filters['avatar'] = filter.avatar
         env.filters['is_following'] = filter.is_following
+        env.filters['num_human'] = filter.num_human
         env.filters['truncate_lines'] = utils.truncate_lines
         template = env.get_template(template)
         return template.render(settings=self.settings,
@@ -117,7 +120,9 @@ class DiscoverHandler(BaseHandler):
         if not asks:
             self.redirect("/ask")
         else:
-            self.render("discovery.html", asks=asks,daily_hots=asks[0:3],monthly_hots=asks[3:5])
+            hot_topics = [{'name':u'精神病','cnt':7004},{'name':u'神经病','cnt':6074},{'name':u'弱智','cnt':5349},{'name':u'脑残','cnt':4301},\
+                {'name':u'脑瘫','cnt':2315}]
+            self.render("discovery.html", asks=asks,daily_hots=asks[0:3],monthly_hots=asks[3:5],hot_topics=hot_topics)
 
 
 class HomeHandler(BaseHandler):
@@ -506,3 +511,11 @@ class UnFollowAskHandler(BaseHandler):
             if(inter):
                 for event in inter:
                     me.update(pull__time_line = Story(event=event,source='asks'))
+
+class GetHotTopicHandler(BaseHandler):
+    def get(self):
+        hot_topics = [{'name':u'精神病','cnt':7004},{'name':u'神经病','cnt':6074},{'name':u'弱智','cnt':5349},{'name':u'脑残','cnt':4301},\
+            {'name':u'脑瘫','cnt':2315},{'name':u'二逼','cnt':315},{'name':u'逗逼','cnt':208}]
+        hots = [random.choice(hot_topics) for x in range(0,5)]
+        results = json.dumps(hots, ensure_ascii = False)
+        return self.write(results)

@@ -42,11 +42,11 @@
     </div>
     <div class = "ask-border">
     {% if item.type == 'ask' %}
-        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }}前 提出了问题,{{ item.answers_count }} 个回答</div>
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 提出了问题,{{ item.answers_count }} 个回答</div>
     {% elif item.type == 'answer' %}
-        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }}前 回答了问题</div>
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 回答了问题</div>
     {% elif item.type == 'followAsk' %}
-        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }}前 关注了问题</div>
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 关注了问题</div>
     {% else %}
     {% endif %}
     <div class="title"><a href="{{ item.url }}">{{ item.title|e }}</a></div>

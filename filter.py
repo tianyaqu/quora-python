@@ -37,15 +37,15 @@ def strftime(value, type='normal'):
     total_secs = (datetime.datetime.now() - value).total_seconds()
     min = int(total_secs)/60
     if(min <= 0):
-        return 'now'
+        return u'刚刚'
     if(min < 60):
-        return str(min) + ' min'
+        return str(min) + u' 分钟前'
     hour = min/60
     if(hour < 24):
-        return str(hour) + ' hour'
+        return str(hour) + u' 小时前'
         
     day = hour/24
-    return str(day) + ' day'
+    return str(day) + u' 天前'
     
 
 def strfdate(value,type='normal'):
@@ -78,5 +78,17 @@ def is_following(user,id):
             if(x == id):
                 return True
     return False
+
+def num_human(num):
+    if(num < 100):
+        return str(num)
+    elif(num < 1000):
+        return str(num/100) + '00+'
+    elif(num < 10000):
+        return str(num/1000) + ',000+'
+    else:
+        return str(num/10000) + '0,000+'
+
+        
     
     

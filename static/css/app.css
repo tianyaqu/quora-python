@@ -112,10 +112,7 @@ a.tag { margin:0px 2px; }
 
 .sidebar .social-buttons {width:auto;}
 .social-buttons.inbox {margain-left:20px;}
-/*
-.ask .avatar { float:left; width:20px; position:relative; margin-top:2px; margin-right:8px; margin-left:-45px; }
-.ask .avatar { float:left; width:20px; position:relative; margin-top:2px; margin-right:8px; margin-left:-45px; }
-*/
+
 .ask .avatar { float:left; width:20px; position:relative; margin-top:1px; margin-right:8px;  }
 .ask .ask-border { padding-left:45px;}
 .ask .body {padding-top:5px;}
@@ -153,3 +150,27 @@ a.tag { margin:0px 2px; }
 .hot .body {padding-top:5px;}
 .hot .content_wrapper {padding-top:5px;}
 .hot .action a.followed { color:#999; }
+
+.hot-topics {float:left; width:210px;}
+.hot-topics .hot-topics-head {font-size: 18px;height:30px;margin-top:10px;border-bottom:1px solid #ddd;margin-bottom:5px;}
+.hot-topics .header-name {float:left; position:relative;padding-left:5%;}
+.hot-topics .round {float:right;position:relative;padding-right:5%}
+.hot-topics .hot-topics-wrapper {margin-top:2px;}
+.hot-topics .topic { padding: 5px 0 3px;list-style:none;}
+.hot-topics .follow { float:right;padding-right:15px;}
+
+ 
+.hot-topics .more-topics {
+  margin-top:10px;
+  margin-bottom: 20px;
+  padding: 34px 0;
+  border: 1px solid #cce1ef;
+  border-radius: 4px;
+  background: #eff6fA;
+  text-align: center;
+}
+
+.more-topics .m_button {padding-left:5%;padding-right:5%;margin-bottom:7px;}
+.more-topics .text {font-size:12px;}
+
+
