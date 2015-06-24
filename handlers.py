@@ -187,8 +187,6 @@ class AskHandler(BaseHandler):
             self.notice(exc,"error")
             frm.render("ask.html")
 
-
-        
 class AskShowHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self,id):
@@ -421,7 +419,40 @@ class UnfollowHandler(BaseHandler):
 class TopicFollowHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        pass
+        id = self.get_argument('id',None)
+        topic = Topic.objects(id=id).first()
+        if(topic):
+            if topic.followers.count(self.current_user):
+                self.write("-1")
+                return
+            topic.update(add_to_set__followers=self.current_user)
+
+            event = UserEvent(user=self.current_user.id,type="followTopic",target=topic.id)
+            event.save()
+            User.objects(id = self.current_user.id).update_one(push__user_events = event)
+            User.objects(id = self.current_user.id).update_one(add_to_set__topics = topic.id)
+
+class UnFollowTopicHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        id = self.get_argument('id',None)
+        topic = Topic.objects(id=id).first()
+        me = User.objects(id = self.current_user.id).first()
+        if(topic and me):
+            topic.update(pull__followers=self.current_user)
+            User.objects(id = self.current_user.id).update_one(pull__topics = topic.id)
+            """
+            inter = list(set(me.time_line) & set(ask.user_events))
+            if(inter):
+                for event in inter:
+                    me.update(pull__time_line = event)
+
+            my_timeline_events = [x.event for x in me.time_line if type(x) == Story]
+            inter = list(set(my_timeline_events) & set(ask.user_events))
+            if(inter):
+                for event in inter:
+                    me.update(pull__time_line = Story(event=event,source='asks'))
+            """
 
 class TopicEditHandler(BaseHandler):
     @tornado.web.authenticated

@@ -23,6 +23,7 @@ class User(Document):
     bio = StringField(max_length=1000)
     followers = ListField(ReferenceField('self', dbref=False))
     following = ListField(ReferenceField('self', dbref=False))
+    topics = ListField(ObjectIdField())
     time_line = ListField(EmbeddedDocumentField(Story))
     #user_events = ListField(ObjectIdField())
     user_events = ListField(ReferenceField(UserEvent))

@@ -192,6 +192,7 @@ a.tag { margin:0px 2px; }
   top: 18px;
   right: 57px;
 }
+.topic-category .followed { color:#999; }
 .topic-category .content{padding-left:62px;margin: 18px 15px 18px 0;}
 .topic-category img {
   position: absolute;

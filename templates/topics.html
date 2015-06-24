@@ -2,45 +2,33 @@
 
 {% block scripts %}
 <script type="text/javascript">
-$(function (){
-    $('#hot_tabs li:eq(0) a').tab('show');
-});
 
-function num_human_js(num){
-    if(num < 100){
-        return (num)
-    }
-    else if(num < 1000){
-        return parseInt(num/100) + '00+';
-    }
-    else if(num < 10000){
-        return parseInt(num/1000) + ',000+';
+  function topic_follow(id){
+    topic_x = $("a.follow","#topic_"+id)
+    follow_cnt = $("#topics_follow_cnt")
+    cnt = parseInt(follow_cnt.text())
+    if(topic_x.text() == "关注"){
+        topic_x.addClass("followed").text("已关注");
+        follow_cnt.text(cnt + 1)
+        $.get("/topic_follow?id=" + id,function(s){});
     }
     else{
-        return parseInt(num/10000) + '0,000+';
-    }
-}
-function get_hot_topcs(el){
-    $.get("topic_hot", function(json){
-        var jsonList=eval("("+json+")");
-        var i = 1;
-        for(var itr in jsonList){
-            var id = 'topic_' + i;
-            item = jsonList[itr];
-            content = item['name'] + '(<strong>' + num_human_js(item['cnt']) + '</strong>)';
-            var h = $('#'+id+'> span').html(content);
-            i = i + 1;
+        topic_x.removeClass("followed").text("关注");
+        if(cnt >= 1){
+            follow_cnt.text(cnt - 1)
         }
+        $.get("/topic_unfollow?id=" + id,function(s){});
+    }
 
-    });
-}
-
+    return false;
+  }
+  
 </script>
 {% endblock %}
 
 {% block body %}
 <div class="page-title">
-    <a class="t-down t-right t-gray t-padding-right" href="#">已关注5个话题</a>
+    <a class="t-down t-right t-gray t-padding-right" href="#">已关注<span id="topics_follow_cnt">{{current_user.topics|length}}</span>个话题</a>
     <h2>话题广场</h2>
 </div>
 
@@ -48,24 +36,32 @@ function get_hot_topcs(el){
     <div class="category-wrapper">
         {% for topic in topics %}
         {% if loop.index % 2 == 1 %}
-        <div class="item t-padding-right">
+        <div id="topic_{{topic.id}}" class="item t-padding-right">
             <div class="content">
                 <a target="_blank" href="#">
 
                 {{ topic|topic_avatar() }}
                 <strong>{{topic.name}}</strong></a>
                 <p>{{topic.desc}}</p>
-                <a class="follow" href="javascript:;">关注</a>
+                {% if topic.followers.count(current_user) == 0 %}
+                    <a href="javascript:;" class="follow" onclick="return topic_follow('{{topic.id}}');">关注</a>
+                {% else %}
+                    <a href="javascript:;" class="follow followed" onclick="return topic_follow('{{topic.id}}');">已关注</a>
+                {% endif %}
             </div>
         </div>
         {% else %}
-        <div class="item">
+        <div id="topic_{{topic.id}}" class="item">
             <div class="content">
                 <a target="_blank" href="#">
                 {{ topic|topic_avatar() }}
                 <strong>{{topic.name}}</strong></a>
                 <p>{{topic.desc}}</p>
-                <a class="follow" href="javascript:;">关注</a>
+                {% if topic.followers.count(current_user) == 0 %}
+                    <a href="javascript:;" class="follow" onclick="return topic_follow('{{topic.id}}');">关注</a>
+                {% else %}
+                    <a href="javascript:;" class="follow followed" onclick="return topic_follow('{{topic.id}}');">已关注</a>
+                {% endif %}
             </div>
         </div>
         {% endif %}
