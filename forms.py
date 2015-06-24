@@ -3,8 +3,10 @@ import re
 import logging  
 import urlparse
 import formencode
-from formencode import htmlfill, validators
-
+from formencode import htmlfill, validators,Invalid
+from tornado.httputil import parse_body_arguments,HTTPFile 
+from PIL import Image
+from io import BytesIO
 
 class BaseForm(formencode.Schema):
     """
@@ -28,11 +30,14 @@ class BaseForm(formencode.Schema):
         # so formencode not_empty setting work.
         request = handler.request
         content_type = request.headers.get("Content-Type", "")
-
-        if request.method == "POST":
-            if content_type.startswith("application/x-www-form-urlencoded"):
-                arguments = urlparse.parse_qs(request.body, keep_blank_values=1)
-
+        files = {}
+        parse_body_arguments(content_type,request.body,arguments,files)
+        try:
+            for key in files.keys():
+                arguments[key] = files.get(key)
+        except Exception, error:
+            pass
+                
         for k, v in arguments.iteritems():
             if len(v) == 1:
                 self._parmas[k] = v[0]
@@ -46,6 +51,7 @@ class BaseForm(formencode.Schema):
     def validate(self):
         try:
             self._values = self.to_python(self._parmas)
+            self._values = self._parmas
             self._result = True
             self.__after__()
         except formencode.Invalid, error:
@@ -55,7 +61,10 @@ class BaseForm(formencode.Schema):
 
         # map values to define form propertys and decode utf8
         for k in self._values.keys():
-            exec("self.%s = self._values[\"%s\"].decode('utf8')" % (k,k)) 
+            if(type(self._values[k]) != HTTPFile):
+                exec("self.%s = self._values[\"%s\"].decode('utf8')" % (k,k)) 
+            else:
+                exec("self.%s = self._values[\"%s\"]" % (k,k))
 
         return self._result
 
@@ -78,9 +87,6 @@ class BaseForm(formencode.Schema):
     # post process hook
     def __after__(self):
         pass
-
-
-
 
 
 class LoginForm(BaseForm):
@@ -109,4 +115,28 @@ class AskForm(BaseForm):
 class AnswerForm(BaseForm):
     answer_body = validators.String(not_empty=True,min=2,strip=True)
 
+class FileUploadValidator(validators.FancyValidator):
+    accept_iterator = True
+    messages = {
+        'no_file': 'You upload no file'
+    }
+
+    def _convert_to_python(self, value, state):
+        if isinstance(value, HTTPFile):
+            filename = value['filename']
+            content = value['body']
+        elif isinstance(value, str):
+            filename = None
+            content = value
+
+        return dict(filename=filename,content=content)
+
+    def _validate_python(self, value, state):
+        if not value['content']:
+            raise Invalid(self.message("no_file", state),value,state)
+
+class TopicForm(BaseForm):
+    topic = validators.String(not_empty=True,strip=True)
+    avatar = FileUploadValidator()
+    desc = validators.String(max=300)
 

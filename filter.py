@@ -71,6 +71,14 @@ def avatar(user,size = 40,c_type = 0):
 
     return "<a href=\"/u/%s\" class=\"%s\"><img src=\"%s\" style=\"width:%dpx;height:%dpx\" title=\"%s\" /></a>" % (user.login,type,gravatar_url,size,size,user.name)
 
+def topic_avatar(topic):
+    name = 'unknown'
+    if(topic):
+        name = topic.name
+    gravatar_url = "/avatar?topic=" + name
+    return "<a href=\"/topic/%s\" ><img src=\"%s\" title=\"%s\" /></a>" % (name,gravatar_url,name)
+
+
 
 def is_following(user,id):
     if(user and user.following):

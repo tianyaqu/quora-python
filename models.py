@@ -49,6 +49,7 @@ class Ask(Document):
     answers_count = IntField(required=True,default=0)
     flagged_users = ListField(ReferenceField(User))
     followers = ListField(ReferenceField(User))
+    topics = ListField(ObjectIdField())
     #user_events = ListField(ObjectIdField())
     user_events = ListField(ReferenceField(UserEvent))
     created_at = DateTimeField(default=datetime.datetime.now)
@@ -88,6 +89,14 @@ class Answer(Document):
         Answer.objects(id=id).update_one(inc__vote=vote_num,
                                      push__votes=new_vote)
         return 1
+
+class Topic(Document):
+    name = StringField(required=True)
+    desc = StringField()
+    avatar = ImageField()
+    followers = ListField(ReferenceField(User))
+    threads = ListField(ReferenceField(Ask))
+    created_at = DateTimeField(default=datetime.datetime.now)
 
 """ 
 class Article():

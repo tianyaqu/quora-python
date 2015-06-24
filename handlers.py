@@ -4,6 +4,7 @@ import random
 import json
 import tornado.web
 import tornado.auth
+from tornado.httputil import HTTPFile
 from jinja2 import Template, Environment, FileSystemLoader
 from bson import objectid
 from PIL import Image
@@ -13,7 +14,6 @@ from io import BytesIO
 import filter, utils, session
 from forms import *
 from models import *
-
 
 class BaseHandler(tornado.web.RequestHandler):
 
@@ -31,6 +31,7 @@ class BaseHandler(tornado.web.RequestHandler):
         env.filters['strftime'] = filter.strftime
         env.filters['strfdate'] = filter.strfdate
         env.filters['avatar'] = filter.avatar
+        env.filters['topic_avatar'] = filter.topic_avatar
         env.filters['is_following'] = filter.is_following
         env.filters['num_human'] = filter.num_human
         env.filters['truncate_lines'] = utils.truncate_lines
@@ -421,6 +422,49 @@ class TopicFollowHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         pass
+
+class TopicEditHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        id = self.get_argument('id',None)
+        self.set_title(u"添加话题")
+        if(self.current_user.login == 'alex'):
+            if(id):
+                topic = Topic.objects(id = id).first()
+                self.render('topic_edit.html',topic=topic)
+            else:
+                self.render('topic_edit.html',topic=None)
+        else:
+            self.redirect("/")
+
+    @tornado.web.authenticated
+    def post(self):
+        self.set_title(u"添加话题")
+        frm = TopicForm(self)
+
+        if not frm.validate():
+            frm.render("topic_edit.html")
+            return
+            
+
+        img = frm.avatar['body']
+        topic = Topic(name=frm.topic,
+            desc = frm.desc)
+        io_obj = BytesIO(img)
+        topic.avatar.put(io_obj)
+        try:
+            topic.save()
+        except Exception,exc:
+            self.notice(exc,"error")
+            frm.render("topic_edit.html")
+
+        self.notice("保存成功", 'success')
+        self.redirect("/topic_edit?id="+str(topic.id))
+
+class TopicsHandler(BaseHandler):
+    def get(self):
+        topics = Topic.objects()
+        self.render('topics.html')
         
 class UploadUserImage(BaseHandler):
     @tornado.web.authenticated
@@ -452,28 +496,24 @@ class UploadUserImage(BaseHandler):
 class AvatarHandler(BaseHandler):
     def get(self):
         name = self.get_argument('name',None)
+        topic = self.get_argument('topic',None)
         if(name):
-            user = User.objects(login=name).first()
-            if(user):
-                try:
-                    h = user.avatar.get()
-                    #thumb = user.avatar.thumbnail
-                    content = h.read()
-                except Exception,file_err:
-                    content = open('unknown.png','rb').read()
-                io =  BytesIO(content)
-                """
-                i=Image.open(io)
-                i.rotate(45).show()
-
-                f = Image.open('img/' + filename)
-                o = io.BytesIO()
-                f.save(o, format="JPEG")
-                """
-                s = io.getvalue()
-                self.set_header('Content-type', 'image/jpg')
-                self.set_header('Content-length', len(s))
-                self.write(s)
+            obj = User.objects(login=name).first()
+        elif(topic):
+            obj = Topic.objects(name=topic).first()
+        else:
+            return
+        try:
+            h = obj.avatar.get()
+            content = h.read()
+        except Exception,file_err:
+            content = open('unknown.png','rb').read()
+            
+        io =  BytesIO(content)
+        s = io.getvalue()
+        self.set_header('Content-type', 'image/jpg')
+        self.set_header('Content-length', len(s))
+        self.write(s)
 
 class FollowAskHandler(BaseHandler):
     @tornado.web.authenticated
