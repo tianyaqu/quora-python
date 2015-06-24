@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block scripts %}
+<script type="text/javascript">
+$(function (){
+    $('#hot_tabs li:eq(0) a').tab('show');
+});
+
+function num_human_js(num){
+    if(num < 100){
+        return (num)
+    }
+    else if(num < 1000){
+        return parseInt(num/100) + '00+';
+    }
+    else if(num < 10000){
+        return parseInt(num/1000) + ',000+';
+    }
+    else{
+        return parseInt(num/10000) + '0,000+';
+    }
+}
+function get_hot_topcs(el){
+    $.get("topic_hot", function(json){
+        var jsonList=eval("("+json+")");
+        var i = 1;
+        for(var itr in jsonList){
+            var id = 'topic_' + i;
+            item = jsonList[itr];
+            content = item['name'] + '(<strong>' + num_human_js(item['cnt']) + '</strong>)';
+            var h = $('#'+id+'> span').html(content);
+            i = i + 1;
+        }
+
+    });
+}
+
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="page-title">
+    <a class="t-down t-right t-gray t-padding-right" href="#">已关注5个话题</a>
+    <h2>话题广场</h2>
+</div>
+
+<div class="topic-category">
+    <div class="category-wrapper">
+        <div class="item t-padding-right">
+            <div class="content">
+                <a target="_blank" href="#">
+                <img src="{{ static_url("img/game.png")}}" alt="游戏">
+                <strong>游戏</strong></a>
+                <p>今朝有酒今朝醉，古来征战几人回</p>
+                <a class="follow" href="javascript:;">关注</a>
+            </div>
+        </div>
+        <div class="item t-right">
+            <div class="content">
+                <a target="_blank" href="#">
+                <img src="{{ static_url("img/internet.png")}}" alt="互联网">
+                <strong>互联网</strong></a>
+                <p>给我一根网线，我可以撬动地球</p>
+                <a class="follow" href="javascript:;">关注</a>
+            </div>
+        </div>
+        <div class="item t-padding-right">
+            <div class="content">
+                <a target="_blank" href="#">
+                <img src="{{ static_url("img/science.png")}}" alt="科技">
+                <strong>科技</strong></a>
+                <p>骄傲让人落后，科技使人进步</p>
+                <a class="follow" href="javascript:;">关注</a>
+            </div>
+        </div>
+        <div class="item t-right">
+            <div class="content">
+                <a target="_blank" href="#">
+                <img src="{{ static_url("img/electronics.png")}}" alt="电子产品">
+                <strong>电子产品</strong></a>
+                <p>一块钱你买不了吃亏买不了上当</p>
+                <a class="follow" href="javascript:;">关注</a>
+            </div>
+        </div>
+        <div class="item t-padding-right">
+            <div class="content">
+                <a target="_blank" href="#">
+                <img src="{{ static_url("img/food.png")}}" alt="美食">
+                <strong>美食</strong></a>
+                <p>民以食为天</p>
+                <a class="follow" href="javascript:;">关注</a>
+            </div>
+        </div>
+        <div class="item t-right">
+            <div class="content">
+                <a target="_blank" href="#">
+                <img src="{{ static_url("img/sport.png")}}" alt="体育">
+                <strong>体育</strong></a>
+                <p>连刘翔都跑不过还配跟我讲理</p>
+                <a class="follow" href="javascript:;">关注</a>
+            </div>
+        </div>
+        <div class="item t-padding-right">
+            <div class="content">
+                <a target="_blank" href="#">
+                <img src="{{ static_url("img/finance.png")}}" alt="金融">
+                <strong>金融</strong></a>
+                <p>愚蠢的人类被数字迷了眼</p>
+                <a class="follow" href="javascript:;">关注</a>
+            </div>
+        </div>
+        <div class="item t-right">
+            <div class="content">
+                <a target="_blank" href="#">
+                <img src="{{ static_url("img/music.png")}}" alt="音乐">
+                <strong>音乐</strong></a>
+                <p>唱支山歌给党听</p>
+                <a class="follow" href="javascript:;">关注</a>
+            </div>
+        </div>
+        <div class="item t-padding-right">
+            <div class="content">
+                <a target="_blank" href="#">
+                <img src="{{ static_url("img/history.png")}}" alt="历史">
+                <strong>历史</strong></a>
+                <p>东风不与周郎便，卷土重来未可知</p>
+                <a class="follow" href="javascript:;">关注</a>
+            </div>
+        </div>
+        <div class="item t-right">
+            <div class="content">
+                <a target="_blank" href="#">
+                <img src="{{ static_url("img/house.png")}}" alt="政治">
+                <strong>政治</strong></a>
+                <p>大人，奏一首卡斯特梅雨季为您祝寿</p>
+                <a class="follow" href="javascript:;">关注</a>
+            </div>
+        </div>
+    </div>
+    <div class="pager">
+    <a class="page_more" href="#">更多...</a>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block sidebar %}
+
+<div class="ads-show">
+</div>
+{% endblock %}

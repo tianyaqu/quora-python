@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="page-title">
+    <h2>添加话题</h2>
+</div>
+<div id="settings" class="form">
+  {{ notice_message }}
+  <form action="" method="post" enctype='multipart/form-data'>
+    <div class="row">
+        <div class="profile_img">
+            {{ topic|topic_avatar() }}
+        </div>
+        <div class="row_wrapper">
+            <label>话题</label><br />
+            <input type="text" name="topic" />
+            <br/><label>图像</label><br />
+            <input type='file' name='avatar'>
+        </div>
+    </div>
+    <div class="row">
+      <label>描述</label><br />
+      <textarea class="text long" name="desc">描述...</textarea>
+    </div>
+    <div class="row">
+      <button type="submit">更新</button>
+    </div>
+    {{ xsrf_form_html() }}
+  </form>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+
+{% endblock %}
