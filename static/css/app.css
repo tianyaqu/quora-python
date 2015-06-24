@@ -181,7 +181,11 @@ a.tag { margin:0px 2px; }
 
 .page-title {margin-top:5px;border-bottom:1px solid #ddd;}
 .page-title h2 {margin-top:5px;margin-bottom:5px;}
-/*.topic-title a:link,a:visited {color: #999;}*/
+
+
+.category-wrapper {
+    overflow:hidden;zoom:1;
+}
 .topic-category .item {position:relative;float:left;width:50%;list-style:none;border-bottom:1px dotted #eee;padding-top:11px;padding-bottom:11px;padding-right:27px;}
 .topic-category .follow {
   position: absolute;

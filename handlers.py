@@ -446,7 +446,6 @@ class TopicEditHandler(BaseHandler):
             frm.render("topic_edit.html")
             return
             
-
         img = frm.avatar['body']
         topic = Topic(name=frm.topic,
             desc = frm.desc)
@@ -463,8 +462,12 @@ class TopicEditHandler(BaseHandler):
 
 class TopicsHandler(BaseHandler):
     def get(self):
-        topics = Topic.objects()
-        self.render('topics.html')
+        last_id = self.get_argument("last", None)
+        if not last_id:
+          topics = Topic.objects().limit(10)
+        else:
+          topics = Topic.objects(id__gt = last_id)[:10]
+        self.render('topics.html',topics=topics)
         
 class UploadUserImage(BaseHandler):
     @tornado.web.authenticated
