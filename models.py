@@ -24,8 +24,9 @@ class User(Document):
     followers = ListField(ReferenceField('self', dbref=False))
     following = ListField(ReferenceField('self', dbref=False))
     topics = ListField(ObjectIdField())
-    time_line = ListField(EmbeddedDocumentField(Story))
+    #time_line = ListField(EmbeddedDocumentField(Story))
     #user_events = ListField(ObjectIdField())
+    time_line = ListField(ReferenceField(UserEvent))
     user_events = ListField(ReferenceField(UserEvent))
     avatar = ImageField(thumbnail_size=(75,75,True))
     created_at = DateTimeField(default=datetime.datetime.now)
@@ -122,27 +123,71 @@ class Article():
             self.type = event.type
 """
 class Article():
-    def __init__(self,story):
-        event = story.event
+    def __init__(self,event):
+        self.type = event.type
+        self.created_at = event.happended_at
+        self.user = User.objects(id = event.user).first()
         if(event.type == 'ask' or event.type == 'followAsk'):
+            self.id = event.target
             stuff = Ask.objects(id=event.target).first()
-            self.ss = stuff
             self.title = stuff.title
             self.body = stuff.body
             self.count = stuff.answers_count
-            self.created_at = stuff.created_at
             self.url = '/ask/' + str(stuff.id)
-            self.user = User.objects(id = event.user).first()
-            self.type = event.type
+            self.followers = stuff.followers
         elif(event.type == 'answer'):
             stuff = Answer.objects(id=event.target).first()
-            self.ss = stuff
+            self.id = stuff.ask.id
             self.title = stuff.ask.title
             self.body = stuff.body
             self.count = stuff.vote
-            self.created_at = stuff.created_at
             self.url = '/ask/' + str(stuff.ask.id)
-            self.user = User.objects(id = event.user).first()
-            self.type = event.type
-            self.id = stuff.id
+            self.followers = stuff.ask.followers
+        elif(event.type == 'followTopic'):
+            self.id = event.target
+            stuff = Topic.objects(id=event.target).first()
+            self.title = stuff.name
+            self.followers = stuff.followers
+            self.url = '/topic/' + str(self.id)
+        elif(event.type == 'followUser'):
+            self.id = event.target
+            stuff = User.objects(id=event.target).first()
+            self.title = stuff.name
+            self.followers = stuff.followers
+            self.url = '/u/' + stuff.login
+
+class Brticle():
+    def __init__(self,story):
+        event = story.event
+        self.type = event.type
         self.source = story.source
+        self.created_at = event.happended_at
+        self.user = User.objects(id = event.user).first()
+        if(event.type == 'ask' or event.type == 'followAsk'):
+            self.id = event.target
+            stuff = Ask.objects(id=event.target).first()
+            self.title = stuff.title
+            self.body = stuff.body
+            self.count = stuff.answers_count
+            self.url = '/ask/' + str(stuff.id)
+            self.followers = stuff.followers
+        elif(event.type == 'answer'):
+            stuff = Answer.objects(id=event.target).first()
+            self.id = stuff.ask.id
+            self.title = stuff.ask.title
+            self.body = stuff.body
+            self.count = stuff.vote
+            self.url = '/ask/' + str(stuff.ask.id)
+            self.followers = stuff.ask.followers
+        elif(event.type == 'followTopic'):
+            self.id = event.target
+            stuff = Topic.objects(id=event.target).first()
+            self.title = stuff.name
+            self.followers = stuff.followers
+            self.url = '/topic/' + str(self.id)
+        elif(event.type == 'followUser'):
+            self.id = event.target
+            stuff = User.objects(id=event.target).first()
+            self.title = stuff.name
+            self.followers = stuff.followers
+            self.url = '/u/' + stuff.login

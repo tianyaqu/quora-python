@@ -32,19 +32,61 @@ function follow(id) {
 {% endblock %}
 
 {% block body %}
-<div class="user_profile">
-<h1>{{ user.name }}</h1>
-<div class="info">
-  注册于 {{ user.created_at|strftime }}前
+<div class="page-title">
+    <h2>用户动态</h2>
 </div>
-{% if user.blog %}
-<a href="{{ user.blog }}" rel="nofollow" target="_blank">{{ user.blog|urlize }}</a>
-{% endif %}
-<div class="bio md_body">
-  {% if user.bio %}
-  {{ user.bio|md_body }}
+<div id="articles">
+  {% if articles %}
+  {% for item in articles %}
+    <div id="ask_{{item.id}}" class="ask">
+    <div class = "avatar"> 
+        {{ item.user|avatar(38,1) }}
+        {% if item.type == 'answer' %}
+        <div class="item-vote">
+        <a name="expand" class="item-vote-count" href="javascript:;">{{item.count}}</a>
+        </div>
+        {% endif %}
+
+    </div>
+    <div class = "ask-border">
+    {% if item.type == 'ask' %}
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 提出了问题,{{ item.count }} 个回答</div>
+        <div class="title"><a href="{{ item.url }}">{{ item.title|e }}</a></div>
+    {% elif item.type == 'answer' %}
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 回答了问题</div>
+        <div class="title"><a href="{{ item.url }}">{{ item.title|e }}</a></div>
+    {% elif item.type == 'followUser' %}
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 关注了用户 <a href="{{ item.url }}">{{ item.title|e }}</a></div>
+    {% elif item.type == 'followAsk' %}
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 关注了问题 <a href="{{ item.url }}">{{ item.title|e }}</a></div>
+    {% elif item.type == 'followTopic' %}
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 关注了话题 <a href="{{ item.url }}">{{ item.title|e }}</a></div>
+    {% endif %}
+    <div class="body">
+      {{ item.body|truncate_lines|md_body }}
+    </div>
+    {% if item.type == 'answer' or item.type == 'ask' %}
+    <div class="action">
+            {% if item.followers.count(current_user) == 0 %}
+                <a href="#" class="follow" onclick="return ask_follow('{{item.id}}');">关注问题</a>
+            {% else %}
+                <a href="#" class="follow followed" onclick="return ask_follow('{{item.id}}');">已关注</a>
+            {% endif %}
+        {% if item.comments|count == 0 %}
+        <a href="#" onclick="return toggleAnswerComments('{{ item.id }}');">给予评论</a>
+        {% else %}
+        <a href="#" onclick="return toggleAnswerComments('{{ item.id }}');">{{ item.comments|count }} 条评论</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    </div>
+  </div>
+  {% endfor %}
   {% endif %}
-</div>
+  {% if articles|length == 10 %}
+  <a class="page_more" href="/?last={{ articles[9].id }}">查看更多...</a>
+  {% endif %}
 </div>
 {% endblock %}
 {% block sidebar %}

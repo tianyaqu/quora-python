@@ -26,14 +26,10 @@
 {% block body %}
 <div id="articles">
   {% for item in articles %}
-  {% if item.type == 'answer' %}
-    <div id="ask_{{item.ss.ask.id}}" class="ask">
-  {% else %}
-    <div id="ask_{{item.ss.id}}" class="ask">
-  {% endif %}
+    <div id="ask_{{item.id}}" class="ask">
     <div class = "avatar"> 
         {{ item.user|avatar(38,1) }}
-        {% if item.type != 'ask' %}
+        {% if item.type == 'answer' %}
         <div class="item-vote">
         <a name="expand" class="item-vote-count" href="javascript:;">{{item.count}}</a>
         </div>
@@ -42,38 +38,35 @@
     </div>
     <div class = "ask-border">
     {% if item.type == 'ask' %}
-        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 提出了问题,{{ item.answers_count }} 个回答</div>
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 提出了问题,{{ item.count }} 个回答</div>
+        <div class="title"><a href="{{ item.url }}">{{ item.title|e }}</a></div>
     {% elif item.type == 'answer' %}
         <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 回答了问题</div>
+        <div class="title"><a href="{{ item.url }}">{{ item.title|e }}</a></div>
+    {% elif item.type == 'followUser' %}
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 关注了用户 <a href="{{ item.url }}">{{ item.title|e }}</a></div>
     {% elif item.type == 'followAsk' %}
-        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 关注了问题</div>
-    {% else %}
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 关注了问题 <a href="{{ item.url }}">{{ item.title|e }}</a></div>
+    {% elif item.type == 'followTopic' %}
+        <div class="info">{{ item.user|user_name_tag }} {{ item.created_at|strftime }} 关注了话题 <a href="{{ item.url }}">{{ item.title|e }}</a></div>
     {% endif %}
-    <div class="title"><a href="{{ item.url }}">{{ item.title|e }}</a></div>
     <div class="body">
       {{ item.body|truncate_lines|md_body }}
     </div>
+    {% if item.type == 'answer' or item.type == 'ask' %}
     <div class="action">
-        {% if item.type == 'answer' %}
-            {% if item.ss.ask.followers.count(current_user) == 0 %}
-                <a href="#" class="follow" onclick="return ask_follow('{{item.ss.ask.id}}');">关注问题</a>
+            {% if item.followers.count(current_user) == 0 %}
+                <a href="#" class="follow" onclick="return ask_follow('{{item.id}}');">关注问题</a>
             {% else %}
-                <a href="#" class="follow followed" onclick="return ask_follow('{{item.ss.ask.id}}');">已关注</a>
+                <a href="#" class="follow followed" onclick="return ask_follow('{{item.id}}');">已关注</a>
             {% endif %}
-        {% else %}
-            {% if item.ss.followers.count(current_user) == 0 %}
-                <a href="#" class="follow" onclick="return ask_follow('{{item.ss.id}}');">关注问题</a>
-            {% else %}
-                <a href="#" class="follow followed" onclick="return ask_follow('{{item.ss.id}}');">已关注</a>
-            {% endif %}
-        {% endif %}
-
         {% if item.comments|count == 0 %}
         <a href="#" onclick="return toggleAnswerComments('{{ item.id }}');">给予评论</a>
         {% else %}
         <a href="#" onclick="return toggleAnswerComments('{{ item.id }}');">{{ item.comments|count }} 条评论</a>
         {% endif %}
     </div>
+    {% endif %}
 
     </div>
   </div>
@@ -90,9 +83,4 @@
   {{ current_user|avatar(120) }}
 </div>
 {% endif %}
-<div class="box">
-  <ul>
-    <li><a href="/">Your feed</a></li>
-  </ul>
-</div>
 {% endblock %}
