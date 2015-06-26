@@ -25,15 +25,32 @@ function get_hot_topcs(el){
         var jsonList=eval("("+json+")");
         var i = 1;
         for(var itr in jsonList){
-            var id = 'topic_' + i;
             item = jsonList[itr];
+            var id = 'topic_' + item['id'];
             content = item['name'] + '(<strong>' + num_human_js(item['cnt']) + '</strong>)';
-            var h = $('#'+id+'> span').html(content);
+            
+            var h = $('#'+id+'> span').html(content);          
+            var code = '<a href="javascript:;" class="follow" onclick="return topic_follow(' + item['id'] + ');">关注</a>'
+            $('#'+id+'> a').replaceWith(code)
             i = i + 1;
         }
 
     });
 }
+
+  function topic_follow(id){
+    topic_x = $("a.follow","#topic_"+id)
+    if(topic_x.text() == "关注"){
+        topic_x.addClass("followed").text("已关注");
+        $.get("/topic_follow?id=" + id,function(s){});
+    }
+    else{
+        topic_x.removeClass("followed").text("关注");
+        $.get("/topic_unfollow?id=" + id,function(s){});
+    }
+
+    return false;
+  }
 
 </script>
 {% endblock %}
@@ -74,12 +91,12 @@ function get_hot_topcs(el){
         <div class="tab-pane" id="daily-hot">
             {% for item in daily_hots %}
           <div class="hot">
-            <div class="title"><a href="/ask/{{ item.id }}">{{ item.title|e }}</a></div>
+            <div class="title"><a href="/ask/{{ item.ask.id }}">{{ item.ask.title|e }}</a></div>
             <div class="content_wrapper">
                 <div class = "avatar"> 
                     {{ item.user|avatar(38,1) }}
                     <div class="item-vote">
-                        <a name="expand" class="item-vote-count" href="javascript:;">5</a>
+                        <a name="expand" class="item-vote-count" href="javascript:;">{{item.vote}}</a>
                     </div>
                 </div>
 
@@ -97,12 +114,12 @@ function get_hot_topcs(el){
         <div class = "tab-pane" id="monthly-hot">
             {% for item in monthly_hots %}
           <div class="hot">
-            <div class="title"><a href="/ask/{{ item.id }}">{{ item.title|e }}</a></div>
+            <div class="title"><a href="/ask/{{ item.id }}">{{ item.ask.title|e }}</a></div>
             <div class="content_wrapper">
                 <div class = "avatar"> 
                     {{ item.user|avatar(38,1) }}
                     <div class="item-vote">
-                        <a name="expand" class="item-vote-count" href="javascript:;">5</a>
+                        <a name="expand" class="item-vote-count" href="javascript:;">{{item.vote}}</a>
                     </div>
                 </div>
 
@@ -129,9 +146,13 @@ function get_hot_topcs(el){
     </div>
     <ul class="hot-topics-wrapper">
         {% for topic in hot_topics %}
-        <li id="{{'topic_' + loop.index|string }}" class="topic">
+        <li id="{{'topic_' + topic.id }}" class="topic">
             <span>{{topic.name}}(<strong>{{topic.cnt|num_human}}</strong>)</span>
-            <a class="follow">关注</a>
+            {% if current_user|is_following_topic(topic.id) == False %}
+                <a href="javascript:;" class="follow" onclick="return topic_follow('{{topic.id}}');">关注</a>
+            {% else %}
+                    <a href="javascript:;" class="follow followed" onclick="return topic_follow('{{topic.id}}');">已关注</a>
+            {% endif %}
         </li>
         {% endfor %}
 

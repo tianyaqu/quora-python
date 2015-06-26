@@ -33,6 +33,7 @@ class BaseHandler(tornado.web.RequestHandler):
         env.filters['avatar'] = filter.avatar
         env.filters['topic_avatar'] = filter.topic_avatar
         env.filters['is_following'] = filter.is_following
+        env.filters['is_following_topic'] = filter.is_following_topic
         env.filters['num_human'] = filter.num_human
         env.filters['truncate_lines'] = utils.truncate_lines
         template = env.get_template(template)
@@ -92,6 +93,12 @@ class BaseHandler(tornado.web.RequestHandler):
                 if(article):
                     articles.append(article)
         return articles[::-1]
+    
+    def generate_hot_topics(self,n):
+        topics = Topic.objects()
+        sorted_list = sorted(topics, key=lambda x : len(x.threads),reverse=True)
+        hot_topics = [{'name':x.name,'cnt':len(x.threads),'id':str(x.id)} for x in sorted_list]
+        return hot_topics[:n]
 
 class DiscoverHandler(BaseHandler):
     @tornado.web.authenticated
@@ -104,9 +111,17 @@ class DiscoverHandler(BaseHandler):
         if not asks:
             self.redirect("/ask")
         else:
-            hot_topics = [{'name':u'精神病','cnt':7004},{'name':u'神经病','cnt':6074},{'name':u'弱智','cnt':5349},{'name':u'脑残','cnt':4301},\
-                {'name':u'脑瘫','cnt':2315}]
-            self.render("discovery.html", asks=asks,daily_hots=asks[0:3],monthly_hots=asks[3:5],hot_topics=hot_topics)
+            #hot_topics = [{'name':u'精神病','cnt':7004},{'name':u'神经病','cnt':6074},{'name':u'弱智','cnt':5349},{'name':u'脑残','cnt':4301},\
+            #    {'name':u'脑瘫','cnt':2315}]
+            #ordered by vote
+            now = datetime.datetime.now()
+            week_start,week_end = utils.get_week_range(now)
+            month_start,month_end = utils.get_month_range(now)
+            daily = Answer.objects(created_at__gte=week_start,created_at__lt=week_end).order_by("-vote")[:5]
+            monthly = Answer.objects(created_at__gte=month_start,created_at__lt=month_end).order_by("-vote")[:5]
+
+            hot_topics = self.generate_hot_topics(5)
+            self.render("discovery.html", asks=asks,daily_hots=daily,monthly_hots=monthly,hot_topics=hot_topics)
 
 
 class HomeHandler(BaseHandler):
@@ -455,10 +470,10 @@ class TopicShowHandler(BaseHandler):
         topic = Topic.objects(id=id).first()
         if not topic:
             self.render_404()
-        self.set_title(topic.name)
-        articles = self.events_articles(topic.threads)
-
-        self.render("topic.html",topic = topic,articles=articles)
+        if(topic):
+            self.set_title(topic.name)
+            articles = self.events_articles(topic.threads)
+            self.render("topic.html",topic = topic,articles=articles)
         
 class UploadUserImage(BaseHandler):
     @tornado.web.authenticated
@@ -540,6 +555,7 @@ class GetHotTopicHandler(BaseHandler):
     def get(self):
         hot_topics = [{'name':u'精神病','cnt':7004},{'name':u'神经病','cnt':6074},{'name':u'弱智','cnt':5349},{'name':u'脑残','cnt':4301},\
             {'name':u'脑瘫','cnt':2315},{'name':u'二逼','cnt':315},{'name':u'逗逼','cnt':208}]
-        hots = [random.choice(hot_topics) for x in range(0,5)]
+        hots = self.generate_hot_topics(5)
+        #hots = [random.choice(hot_topics) for x in range(0,5)]
         results = json.dumps(hots, ensure_ascii = False)
         return self.write(results)

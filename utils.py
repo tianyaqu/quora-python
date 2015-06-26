@@ -1,5 +1,9 @@
 # coding: utf-8
 import hashlib, uuid
+import datetime
+import calendar
+from dateutil.relativedelta import relativedelta
+
 def truncate_lines(body, lines = 4, max_chars = 400):
     if not body: return ""
     body_lines = body.splitlines()
@@ -36,3 +40,18 @@ def format_tags(str):
 
 def sid():
     return uuid.uuid1().hex
+
+def get_week_range(date):
+    w = int(date.strftime('%w'))
+    if(w == 0):
+        w = 7
+    date_t = date.date()
+    start = date_t - relativedelta(days=w-1)
+    end = start + relativedelta(days=7)
+    return start,end
+
+def get_month_range(date):
+    date_t = date.date()
+    start = date_t.replace(day = 1)
+    end = start + relativedelta(months=1)
+    return start,end

@@ -73,16 +73,25 @@ def avatar(user,size = 40,c_type = 0):
 
 def topic_avatar(topic):
     name = 'unknown'
+    id = 'unknown'
     if(topic):
         name = topic.name
+        id = str(topic.id)
     gravatar_url = "/avatar?topic=" + name
-    return "<a href=\"/topic/%s\" ><img src=\"%s\" title=\"%s\" /></a>" % (str(topic.id),gravatar_url,name)
+    
+    return "<a href=\"/topic/%s\" ><img src=\"%s\" title=\"%s\" /></a>" % (id,gravatar_url,name)
 
 def is_following(user,id):
     if(user and user.following):
         for x in user.following:
             if(x == id):
                 return True
+    return False
+    
+def is_following_topic(user,id):
+    for x in user.topics:
+        if (str(x) == id):
+            return True
     return False
 
 def num_human(num):
