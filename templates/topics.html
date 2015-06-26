@@ -38,10 +38,8 @@
         {% if loop.index % 2 == 1 %}
         <div id="topic_{{topic.id}}" class="item t-padding-right">
             <div class="content">
-                <a target="_blank" href="#">
-
                 {{ topic|topic_avatar() }}
-                <strong>{{topic.name}}</strong></a>
+                <a target="_blank" href="{{'/topic/' + topic.id|string}}"><strong>{{topic.name}}</strong></a>
                 <p>{{topic.desc}}</p>
                 {% if topic.followers.count(current_user) == 0 %}
                     <a href="javascript:;" class="follow" onclick="return topic_follow('{{topic.id}}');">关注</a>
@@ -53,9 +51,8 @@
         {% else %}
         <div id="topic_{{topic.id}}" class="item">
             <div class="content">
-                <a target="_blank" href="#">
                 {{ topic|topic_avatar() }}
-                <strong>{{topic.name}}</strong></a>
+                <a target="_blank" href="{{'/topic/' + topic.id|string}}"><strong>{{topic.name}}</strong></a>
                 <p>{{topic.desc}}</p>
                 {% if topic.followers.count(current_user) == 0 %}
                     <a href="javascript:;" class="follow" onclick="return topic_follow('{{topic.id}}');">关注</a>

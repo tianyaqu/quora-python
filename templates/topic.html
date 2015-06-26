@@ -1,39 +1,31 @@
 {% extends "base.html" %}
-
 {% block scripts %}
-<script>
+<script type="text/javascript" src="{{ static_url("js/wmd.js") }}"></script>
+<script type="text/javascript" src="{{ static_url("js/showdown.js") }}"></script>
+<script type="text/javascript">
 
-function follow(id) {
-    var xmlhttp;
-    if (window.XMLHttpRequest)
-    {// code for IE7+, Firefox, Chrome, Opera, Safari
-        xmlhttp=new XMLHttpRequest();
+  function ask_follow(id){
+    ask_x = $(".action a.follow","#ask_"+id)
+    if(ask_x.text() == "关注问题"){
+        ask_x.addClass("followed").text("已关注");
+        $.get("/ask/" + id + "/follow",function(s){
+      });
     }
-    else
-    {// code for IE6, IE5
-        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    else{
+        ask_x.removeClass("followed").text("关注问题");
+        $.get("/ask/" + id + "/unfollow",function(s){
+      });
     }
 
-    follow_handler = $("a.follow")
-    act = follow_handler.hasClass('unfollow')
-    follow_handler.toggleClass('unfollow')
-    if(act == 0)
-    {
-        xmlhttp.open("GET","/follow?id="+id,true);
-    }
-    else
-    {
-        xmlhttp.open("GET","/unfollow?id="+id,true);
-    }
-    xmlhttp.send();
-}
-    
+    return false;
+  }
+  
 </script>
 {% endblock %}
 
 {% block body %}
 <div class="page-title">
-    <h2>用户动态</h2>
+    <h2>{{topic.name}}</h2>
 </div>
 <div id="articles">
   {% for item in articles %}
@@ -82,28 +74,16 @@ function follow(id) {
     </div>
   </div>
   {% endfor %}
-
   {% if articles|length == 10 %}
   <a class="page_more" href="/?last={{ articles[9].id }}">查看更多...</a>
   {% endif %}
 </div>
 {% endblock %}
+
 {% block sidebar %}
-
-<div class="profile-panel">
-  {{ user|avatar(120) }}
+{% if current_user %}
+<div class="box">
+  {{ current_user|avatar(120) }}
 </div>
-  <div class = "social-buttons">
-    {% if current_user == user %}
-        <a href="/settings" ">修改资料</a>
-    {% elif current_user|is_following(user) %}
-        <a class="button follow unfollow" href="javascript:void(0)" onclick="follow('{{user.login}}')"></a>
-    {% else %}
-        <a class="button follow" href="javascript:void(0)" onclick="follow('{{user.login}}')"></a>
-    {%endif %}
-    <a href="/inbox/{{user.id}}" class="inbox">私信</a>
-  </div>
-  <div class="profile-records">
-  </div>
-
+{% endif %}
 {% endblock %}

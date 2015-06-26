@@ -83,42 +83,15 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def set_title(self, str):
         self._title = u"%s - %s" % (str,self.settings['app_name'])
-    
-    """
+
     def events_articles(self,events):
         articles = []
         if(events):
             for event in events:
-                if(not event.target):
-                    continue
                 article = Article(event)
                 if(article):
                     articles.append(article)
-        
-        return articles
-        """
-    def events_articles(self,stories):
-        articles = []
-        if(stories):
-            for story in stories:
-                if(not story.event):
-                    continue
-                article = Brticle(story)
-                if(article):
-                    articles.append(article)
-        
-        return articles
-
-    def Xevents_articles(self,events):
-        articles = []
-        if(events):
-            for event in events:
-                print event
-                article = Article(event)
-                if(article):
-                    articles.append(article)
-        if(articles):
-            return articles[::-1]
+        return articles[::-1]
 
 class DiscoverHandler(BaseHandler):
     @tornado.web.authenticated
@@ -141,13 +114,8 @@ class HomeHandler(BaseHandler):
     def get(self):
         last_id = self.get_argument("last", None)
         if not last_id:
-            user = self.current_user 
-            asks = None
-            stories = None
-            #articles = articles
-            if(user.time_line):
-                stories = [x for x in user.time_line if type(x) == Story][::-1]
-            articles = self.Xevents_articles(user.time_line)
+            user = self.current_user
+            articles = self.events_articles(user.time_line)
         else:
             asks = Ask.objects(id__lt = last_id).order_by("-replied_at").limit(10)
         self.render("home.html", articles=articles)
@@ -175,15 +143,14 @@ class AskHandler(BaseHandler):
         try:
             ask.save()
             # this part could be put in a queue
-            #event = UserEvent(user=self.current_user,type="ask",target=ask.id)
             event = UserEvent(user=self.current_user.id,type="ask",target=ask.id)
             event.save()
-            #User.objects(id = self.current_user.id).update_one(push__user_events = event.id)
             User.objects(id = self.current_user.id).update_one(push__user_events = event)
 
             for x in self.current_user.followers:
-                #User.objects(id = x.id).update_one(push__time_line = Story(event=event,source='followee'))
                 User.objects(id = x.id).update_one(push__time_line = event)
+            for x in ask.tags:
+                Topic.objects(name = x).update_one(push__threads = event)
             self.redirect("/ask/%s" % ask.id)
         except Exception,exc:
             self.notice(exc,"error")
@@ -194,7 +161,7 @@ class AskShowHandler(BaseHandler):
     def get(self,id):
         ask = Ask.objects(id=id).first()
         if not ask:
-            render_404
+            self.render_404()
         answers = Answer.objects(ask=ask).order_by("-vote","created_at")
         self.set_title(ask.title)
         self.render("ask_show.html",ask=ask, answers=answers)
@@ -223,22 +190,18 @@ class AnswerHandler(BaseHandler):
             Ask.objects(id=ask_id).update_one(inc__answers_count=1,set__replied_at=answer.created_at)
 
             # this part could be put in a queue
-            #event = UserEvent(user=self.current_user,type="answer",target=answer.id)
             event = UserEvent(user=self.current_user.id,type="answer",target=answer.id)
             event.save()
-            #User.objects(id = self.current_user.id).update_one(push__user_events = event.id)
-            #ask.update(push__user_events = event.id)
             User.objects(id = self.current_user.id).update_one(push__user_events = event)
             ask.update(push__user_events = event)
-            if(self.current_user.followers):
-                for x in self.current_user.followers:
-                    User.objects(id = x.id).update_one(push__time_line = event)
-                    #User.objects(id = x.id).update_one(push__time_line = Story(event=event,source='followee'))
-            if(ask.followers):
-                for x in ask.followers:
-                    User.objects(id = x.id).update_one(push__time_line = event)
-                    #User.objects(id = x.id).update_one(push__time_line = Story(event=event,source='asks'))
-                    
+
+            for x in self.current_user.followers:
+                User.objects(id = x.id).update_one(push__time_line = event)
+            for x in ask.followers:
+                User.objects(id = x.id).update_one(push__time_line = event)
+            for x in ask.tags:
+                Topic.objects(name = x).update_one(push__threads = event)
+
             self.redirect("/ask/%s" % ask_id)
         except Exception,exc:
             self.notice(exc,"error")
@@ -352,14 +315,8 @@ class ProfileHandler(BaseHandler):
             self.render_404
             return
         self.set_title(user.name)
-        articles = None
-        if(user.user_events):
-            #events = [x for x in user.time_line if type(x) == Story][::-1]
-            articles = self.Xevents_articles(user.user_events)
-            print len(articles)
+        articles = self.events_articles(user.user_events)
         self.render("profile.html",user=user,articles=articles)
-
-
 
 class SettingsHandler(BaseHandler):
     @tornado.web.authenticated
@@ -400,14 +357,10 @@ class FollowHandler(BaseHandler):
             follow_event = UserEvent(user=self.current_user.id,type="followUser",target=he.id)
             follow_event.save()
             User.objects(id = self.current_user.id).update_one(push__user_events = follow_event)
-            if(he.user_events):
-                for event in he.user_events:
-                    me.update(push__time_line = event)
-                    #me.update(push__time_line = Story(event=event,source='followee'))
-            if(self.current_user.followers):
-                for x in self.current_user.followers:
-                    #User.objects(id = x.id).update_one(push__time_line = Story(event=follow_event,source='follow'))
-                    User.objects(id = x.id).update_one(push__time_line = follow_event)
+            for event in he.user_events:
+                me.update(push__time_line = event)
+            for x in self.current_user.followers:
+                User.objects(id = x.id).update_one(push__time_line = follow_event)
 
 class UnfollowHandler(BaseHandler):
     @tornado.web.authenticated
@@ -419,18 +372,9 @@ class UnfollowHandler(BaseHandler):
             if(me and he):
                 he.update(pull__followers = me)
                 me.update(pull__following = he)
-                #my_timeline_events = [x.event for x in me.time_line if type(x) == Story]
                 inter = list(set(me.time_line) & set(he.user_events))
-                if(inter):
-                    for event in inter:
-                        #me.update(pull__time_line = Story(event=event,source='followee'))
-                        me.update(pull__time_line = event)
-                """
-                inter = list(set(me.time_line) & set(he.user_events))
-                if(inter):
-                    for event in inter:
-                        me.update(pull__time_line = event)
-                """
+                for event in inter:
+                    me.update(pull__time_line = event)
 
 class TopicFollowHandler(BaseHandler):
     @tornado.web.authenticated
@@ -447,10 +391,8 @@ class TopicFollowHandler(BaseHandler):
             event.save()
             User.objects(id = self.current_user.id).update_one(push__user_events = event)
             User.objects(id = self.current_user.id).update_one(add_to_set__topics = topic.id)
-            if(self.current_user.followers):
-                for x in self.current_user.followers:
-                    #User.objects(id = x.id).update_one(push__time_line = Story(event=event,source='topic'))
-                    User.objects(id = x.id).update_one(push__time_line = event)
+            for x in self.current_user.followers:
+                User.objects(id = x.id).update_one(push__time_line = event)
 
 class UnFollowTopicHandler(BaseHandler):
     @tornado.web.authenticated
@@ -461,18 +403,6 @@ class UnFollowTopicHandler(BaseHandler):
         if(topic and me):
             topic.update(pull__followers=self.current_user)
             User.objects(id = self.current_user.id).update_one(pull__topics = topic.id)
-            """
-            inter = list(set(me.time_line) & set(ask.user_events))
-            if(inter):
-                for event in inter:
-                    me.update(pull__time_line = event)
-
-            my_timeline_events = [x.event for x in me.time_line if type(x) == Story]
-            inter = list(set(my_timeline_events) & set(ask.user_events))
-            if(inter):
-                for event in inter:
-                    me.update(pull__time_line = Story(event=event,source='asks'))
-            """
 
 class TopicEditHandler(BaseHandler):
     @tornado.web.authenticated
@@ -519,6 +449,16 @@ class TopicsHandler(BaseHandler):
         else:
           topics = Topic.objects(id__gt = last_id)[:10]
         self.render('topics.html',topics=topics)
+        
+class TopicShowHandler(BaseHandler):
+    def get(self,id):
+        topic = Topic.objects(id=id).first()
+        if not topic:
+            self.render_404()
+        self.set_title(topic.name)
+        articles = self.events_articles(topic.threads)
+
+        self.render("topic.html",topic = topic,articles=articles)
         
 class UploadUserImage(BaseHandler):
     @tornado.web.authenticated
@@ -578,18 +518,11 @@ class FollowAskHandler(BaseHandler):
                 self.write("-1")
                 return
             ask.update(add_to_set__followers=self.current_user)
-            """
-            event = UserEvent(user=self.current_user,type="followAsk",target=ask.id)
-            event.save()
-            User.objects(id = self.current_user.id).update_one(push__user_events = event.id)
-            """
             event = UserEvent(user=self.current_user.id,type="followAsk",target=ask.id)
             event.save()
             User.objects(id = self.current_user.id).update_one(push__user_events = event)
-            if(self.current_user.followers):
-                for x in self.current_user.followers:
-                    #User.objects(id = x.id).update_one(push__time_line = Story(event=event,source='ask'))
-                    User.objects(id = x.id).update_one(push__time_line = event)
+            for x in self.current_user.followers:
+                User.objects(id = x.id).update_one(push__time_line = event)
 
 class UnFollowAskHandler(BaseHandler):
     @tornado.web.authenticated
@@ -598,17 +531,9 @@ class UnFollowAskHandler(BaseHandler):
         me = User.objects(id = self.current_user.id).first()
         if(ask and me):
             ask.update(pull__followers=self.current_user)
-            """
             inter = list(set(me.time_line) & set(ask.user_events))
             if(inter):
                 for event in inter:
-                    me.update(pull__time_line = event)
-            """
-            #my_timeline_events = [x.event for x in me.time_line if type(x) == Story]
-            inter = list(set(me.time_line) & set(ask.user_events))
-            if(inter):
-                for event in inter:
-                    #me.update(pull__time_line = Story(event=event,source='asks'))
                     me.update(pull__time_line = event)
 
 class GetHotTopicHandler(BaseHandler):

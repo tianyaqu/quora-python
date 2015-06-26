@@ -46,6 +46,7 @@ class Application(tornado.web.Application):
             (r"/topic_hot", GetHotTopicHandler),
             (r"/topic_edit", TopicEditHandler),
             (r"/topics", TopicsHandler),
+            (r"/topic/([^/]+)", TopicShowHandler),
             (r"/topic_follow", TopicFollowHandler),
             (r"/topic_unfollow", UnFollowTopicHandler),
             (r"/upload_user_image", UploadUserImage),

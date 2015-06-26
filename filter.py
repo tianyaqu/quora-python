@@ -76,9 +76,7 @@ def topic_avatar(topic):
     if(topic):
         name = topic.name
     gravatar_url = "/avatar?topic=" + name
-    return "<a href=\"/topic/%s\" ><img src=\"%s\" title=\"%s\" /></a>" % (name,gravatar_url,name)
-
-
+    return "<a href=\"/topic/%s\" ><img src=\"%s\" title=\"%s\" /></a>" % (str(topic.id),gravatar_url,name)
 
 def is_following(user,id):
     if(user and user.following):
