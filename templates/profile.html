@@ -64,21 +64,6 @@ function follow(id) {
     <div class="body">
       {{ item.body|truncate_lines|md_body }}
     </div>
-    {% if item.type == 'answer' or item.type == 'ask' %}
-    <div class="action">
-            {% if item.followers.count(current_user) == 0 %}
-                <a href="#" class="follow" onclick="return ask_follow('{{item.id}}');">关注问题</a>
-            {% else %}
-                <a href="#" class="follow followed" onclick="return ask_follow('{{item.id}}');">已关注</a>
-            {% endif %}
-        {% if item.comments|count == 0 %}
-        <a href="#" onclick="return toggleAnswerComments('{{ item.id }}');">给予评论</a>
-        {% else %}
-        <a href="#" onclick="return toggleAnswerComments('{{ item.id }}');">{{ item.comments|count }} 条评论</a>
-        {% endif %}
-    </div>
-    {% endif %}
-
     </div>
   </div>
   {% endfor %}

@@ -4,14 +4,19 @@
 <script type="text/javascript" src="{{ static_url("js/showdown.js") }}"></script>
 <script type="text/javascript">
 
-  function ask_follow(id){
-    ask_x = $(".action a.follow","#ask_"+id)
+  function ask_follow(id,type){
+    var ask_x;
+    if(type == 'ask'){
+        ask_x = $(".action a.follow","#ask_"+id);
+    }else if(type == 'answer'){
+        ask_x = $(".action a.follow","#ans_"+id);
+    }
     if(ask_x.text() == "关注问题"){
         ask_x.addClass("followed").text("已关注");
         $.get("/ask/" + id + "/follow",function(s){
       });
     }
-    else{
+    else if(ask_x.text() == "已关注"){
         ask_x.removeClass("followed").text("关注问题");
         $.get("/ask/" + id + "/unfollow",function(s){
       });
@@ -29,7 +34,13 @@
 </div>
 <div id="articles">
   {% for item in articles %}
+    {% if item.type == 'ask' %}
     <div id="ask_{{item.id}}" class="ask">
+    {% elif item.type == 'answer' %}
+    <div id="ans_{{item.id}}" class="ask">
+    {% else %}
+    <div class="ask">
+    {% endif %}
     <div class = "avatar"> 
         {{ item.user|avatar(38,1) }}
         {% if item.type == 'answer' %}
@@ -59,14 +70,14 @@
     {% if item.type == 'answer' or item.type == 'ask' %}
     <div class="action">
             {% if item.followers.count(current_user) == 0 %}
-                <a href="#" class="follow" onclick="return ask_follow('{{item.id}}');">关注问题</a>
+                <a href="#" class="follow" onclick="return ask_follow('{{item.id}}','{{item.type}}');">关注问题</a>
             {% else %}
-                <a href="#" class="follow followed" onclick="return ask_follow('{{item.id}}');">已关注</a>
+                <a href="#" class="follow followed" onclick="return ask_follow('{{item.id}}','{{item.type}}');">已关注</a>
             {% endif %}
         {% if item.comments|count == 0 %}
-        <a href="#" onclick="return toggleAnswerComments('{{ item.id }}');">给予评论</a>
+        <a href="#" onclick="return toggleAnswerComments('{{ item.id }}','{{item.type}}');">给予评论</a>
         {% else %}
-        <a href="#" onclick="return toggleAnswerComments('{{ item.id }}');">{{ item.comments|count }} 条评论</a>
+        <a href="#" onclick="return toggleAnswerComments('{{ item.id }}','{{item.type}}');">{{ item.comments|count }} 条评论</a>
         {% endif %}
     </div>
     {% endif %}
